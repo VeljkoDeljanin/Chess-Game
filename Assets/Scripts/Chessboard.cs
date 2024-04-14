@@ -12,11 +12,55 @@ public class Chessboard : MonoBehaviour
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8;
     private GameObject[,] tiles;
+    private Camera currentCamera;
+
+    private Vector2Int currentHover;
 
     public void Awake() 
     {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
     }
+
+    private void Update()
+    {
+        if (!currentCamera) 
+        {
+            currentCamera = Camera.main;
+            return;
+        }
+
+        RaycastHit info;
+        Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover")))
+        {
+            //get indexes of hit tile
+            Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
+
+            if (currentHover == -Vector2Int.one)
+            {
+                currentHover = hitPosition;
+                tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
+            }
+
+            if (currentHover != hitPosition)
+            {
+                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+
+                currentHover = hitPosition;
+                tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
+            }
+        }
+        else
+        {
+            if (currentHover != -Vector2Int.one)
+            {
+                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+                currentHover = -Vector2Int.one;
+            }
+        }
+    }
+
+    //Generate the board
 
     private void GenerateAllTiles(float tileSize, int tileCountX, int tileCountY)
     {
@@ -48,8 +92,23 @@ public class Chessboard : MonoBehaviour
 
         mesh.RecalculateNormals();
 
+        tileObject.layer = LayerMask.NameToLayer("Tile");
+
         tileObject.AddComponent<BoxCollider>();
 
         return tileObject;
     }
+
+    //Operation
+    private Vector2Int LookupTileIndex(GameObject hitInfo)
+    {
+        for (int x = 0; x < TILE_COUNT_X; x++)
+            for (int y = 0; y < TILE_COUNT_Y; y++)
+                if (tiles[x, y] == hitInfo)
+                    return new Vector2Int(x, y);
+
+        return -Vector2Int.one; //u slucaju greske
+    }
 }
+
+
