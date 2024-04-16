@@ -10,6 +10,10 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float yOffset = 0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
 
+    [Header("Prefabs and Materials")]
+    [SerializeField] private GameObject[] prefabs;
+    [SerializeField] private Material[] teamMaterials;
+
     // Logic
     private const int TILE_COUNT_X = 8;
     private const int TILE_COUNT_Y = 8;
@@ -17,10 +21,13 @@ public class Chessboard : MonoBehaviour
     private Camera currentCamera;
     private Vector2Int currentHover;
     private Vector3 bounds;
+    private Piece[,] pieces;
 
     public void Awake() 
     {
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
+
+        SpawnAllPieces();
     }
 
     private void Update()
@@ -113,6 +120,48 @@ public class Chessboard : MonoBehaviour
                     return new Vector2Int(x, y);
 
         return -Vector2Int.one; //u slucaju greske
+    }
+
+    //Spawning
+    private void SpawnAllPieces()
+    {
+        pieces = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
+
+        //White
+        pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
+        pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
+        pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
+        pieces[3, 0] = SpawnSinglePiece(PieceType.Queen, TeamColor.White);
+        pieces[4, 0] = SpawnSinglePiece(PieceType.King, TeamColor.White);
+        pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
+        pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
+        pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
+
+        for(int i = 0; i < TILE_COUNT_X; i++)
+            pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, TeamColor.White);
+
+        //Black
+        pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
+        pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
+        pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
+        pieces[3, 7] = SpawnSinglePiece(PieceType.King, TeamColor.Black);
+        pieces[4, 7] = SpawnSinglePiece(PieceType.Queen, TeamColor.Black);
+        pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
+        pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
+        pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
+
+        for (int i = 0; i < TILE_COUNT_X; i++)
+            pieces[i, 6] = SpawnSinglePiece(PieceType.Pawn, TeamColor.Black);
+    }
+
+    private Piece SpawnSinglePiece(PieceType type, TeamColor team)
+    {
+        Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
+        piece.type = type;
+        piece.team = team;
+        piece.GetComponent<MeshRenderer>().material = teamMaterials[(int)team - 1];
+
+        return piece;
     }
 }
 
