@@ -28,6 +28,7 @@ public class Chessboard : MonoBehaviour
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
 
         SpawnAllPieces();
+        PositionAllPieces();
     }
 
     private void Update()
@@ -120,6 +121,29 @@ public class Chessboard : MonoBehaviour
                     return new Vector2Int(x, y);
 
         return -Vector2Int.one; //u slucaju greske
+    }
+
+    //Positioning
+    private void PositionAllPieces() 
+    {
+        for (int x = 0; x < TILE_COUNT_X; x++)
+            for (int y = 0; y < TILE_COUNT_Y; y++)
+                if (pieces[x, y] != null)
+                    PositionSinglePiece(x, y, false);
+
+
+    }
+
+    private void PositionSinglePiece(int x, int y, bool animate = true)
+    {
+        pieces[x, y].currentX = x;
+        pieces[x, y].currentY = y;
+        pieces[x, y].transform.position = GetTileCenter(x, y);
+    }
+
+    private Vector3 GetTileCenter(int x, int y) 
+    {
+        return new Vector3(x * tileSize, yOffset, y * tileSize) + new Vector3(tileSize/2, 0, tileSize/2) - bounds;
     }
 
     //Spawning
