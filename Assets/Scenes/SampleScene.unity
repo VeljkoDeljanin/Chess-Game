@@ -209,13 +209,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 2, z: -1.5}
+  m_LocalRotation: {x: 0.4848096, y: 0, z: 0, w: 0.8746197}
+  m_LocalPosition: {x: 0, y: 2.25, z: -1.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 60, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 58, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,6 +282,8 @@ MonoBehaviour:
   tileSize: 0.3
   yOffset: 0.185
   boardCenter: {x: 0, y: 0, z: 0}
+  deathScale: 0.6
+  deathSpacing: 0.15
   prefabs:
   - {fileID: 2287445492226610669, guid: 8266e90eb96ccea45bd19bf58d2a3dea, type: 3}
   - {fileID: 3724110285753708094, guid: bd580e6279b29b24ab00403b7127e5cf, type: 3}

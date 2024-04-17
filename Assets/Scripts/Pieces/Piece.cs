@@ -26,6 +26,4 @@ public class Piece : MonoBehaviour
 
     private Vector3 desiredPosition;
     private Vector3 desiredScale;
-
-
 }

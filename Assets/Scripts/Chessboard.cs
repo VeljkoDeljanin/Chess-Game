@@ -9,6 +9,8 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private float tileSize = 1.0f;
     [SerializeField] private float yOffset = 0.2f;
     [SerializeField] private Vector3 boardCenter = Vector3.zero;
+    [SerializeField] private float deathScale = 0.7f;
+    [SerializeField] private float deathSpacing = 0.2f;
 
     [Header("Prefabs and Materials")]
     [SerializeField] private GameObject[] prefabs;
@@ -22,6 +24,10 @@ public class Chessboard : MonoBehaviour
     private Vector2Int currentHover;
     private Vector3 bounds;
     private Piece[,] pieces;
+    private Piece currentPiece;
+
+    private List<Piece> deadWhites = new List<Piece>();
+    private List<Piece> deadBlacks = new List<Piece>();
 
     public void Awake() 
     {
@@ -58,6 +64,19 @@ public class Chessboard : MonoBehaviour
 
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
+            }
+
+            //Is left mouse button clicked
+            if (Input.GetMouseButtonDown(0)) 
+            {
+                if (currentPiece != null) 
+                {
+                    MovePiece(currentPiece, currentHover.x, currentHover.y);
+                }
+                else if (pieces[currentHover.x, currentHover.y] != null) 
+                {
+                    currentPiece = pieces[currentHover.x, currentHover.y];
+                }
             }
         }
         else
@@ -130,8 +149,6 @@ public class Chessboard : MonoBehaviour
             for (int y = 0; y < TILE_COUNT_Y; y++)
                 if (pieces[x, y] != null)
                     PositionSinglePiece(x, y, false);
-
-
     }
 
     private void PositionSinglePiece(int x, int y, bool animate = true)
@@ -144,6 +161,37 @@ public class Chessboard : MonoBehaviour
     private Vector3 GetTileCenter(int x, int y) 
     {
         return new Vector3(x * tileSize, yOffset, y * tileSize) + new Vector3(tileSize/2, 0, tileSize/2) - bounds;
+    }
+
+    private void MovePiece(Piece piece, int x, int y) 
+    {
+        if (pieces[x, y] != null)
+        {
+            Piece target = pieces[x, y];
+            if (target.team == piece.team)
+                return;
+
+            if (target.type != PieceType.King) 
+            {
+                target.transform.localScale = Vector3.one * deathScale;
+                if (target.team == TeamColor.White) 
+                {
+                    target.transform.position = GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing;
+                    deadWhites.Add(target);
+                }
+                else
+                {
+                    target.transform.position = GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing;
+                    deadBlacks.Add(target);
+                }
+            }
+        }
+
+        pieces[piece.currentX, piece.currentY] = null;
+        pieces[x, y] = piece;
+        PositionSinglePiece(x, y);
+
+        currentPiece = null;
     }
 
     //Spawning
