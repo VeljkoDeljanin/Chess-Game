@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum PieceType
@@ -50,5 +51,12 @@ public class Piece : MonoBehaviour
         desiredScale = scale;
         if (!animate)
             transform.localScale = desiredScale;
+    }
+
+    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    {
+        List<Vector2Int> moves = new List<Vector2Int>();
+
+        return moves;
     }
 }

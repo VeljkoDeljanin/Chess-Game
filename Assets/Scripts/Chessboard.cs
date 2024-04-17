@@ -25,6 +25,7 @@ public class Chessboard : MonoBehaviour
     private Vector3 bounds;
     private Piece[,] pieces;
     private Piece currentPiece;
+    private List<Vector2Int> validMoves = new List<Vector2Int>();
 
     private List<Piece> deadWhites = new List<Piece>();
     private List<Piece> deadBlacks = new List<Piece>();
@@ -47,7 +48,7 @@ public class Chessboard : MonoBehaviour
 
         RaycastHit info;
         Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover")))
+        if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover", "Highlight")))
         {
             // Get indexes of hit tile
             Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
@@ -59,8 +60,8 @@ public class Chessboard : MonoBehaviour
             }
 
             if (currentHover != hitPosition)
-            {
-                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+            { 
+                tiles[currentHover.x, currentHover.y].layer = IsValidMove(ref validMoves, currentHover) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
 
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
@@ -71,11 +72,24 @@ public class Chessboard : MonoBehaviour
             {
                 if (currentPiece != null)
                 {
-                    MovePiece(currentPiece, hitPosition.x, hitPosition.y);
+                    if (pieces[hitPosition.x, hitPosition.y] != null && pieces[hitPosition.x, hitPosition.y].team == currentPiece.team)
+                    {
+                        RemoveHighlights();
+                        currentPiece = pieces[hitPosition.x, hitPosition.y];
+                        validMoves = currentPiece.GetValidMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                        HighlightMoves();
+                    }
+                    else
+                    {
+                        MovePiece(currentPiece, hitPosition.x, hitPosition.y);
+                        RemoveHighlights();
+                    }
                 }
                 else if (pieces[hitPosition.x, hitPosition.y] != null)
                 {
                     currentPiece = pieces[hitPosition.x, hitPosition.y];
+                    validMoves = currentPiece.GetValidMoves(ref pieces, TILE_COUNT_X, TILE_COUNT_Y);
+                    HighlightMoves();
                 }
             }
         }
@@ -83,7 +97,7 @@ public class Chessboard : MonoBehaviour
         {
             if (currentHover != -Vector2Int.one)
             {
-                tiles[currentHover.x, currentHover.y].layer = LayerMask.NameToLayer("Tile");
+                tiles[currentHover.x, currentHover.y].layer = IsValidMove(ref validMoves, currentHover) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
                 currentHover = -Vector2Int.one;
             }
         }
@@ -165,6 +179,9 @@ public class Chessboard : MonoBehaviour
 
     private void MovePiece(Piece piece, int x, int y) 
     {
+        if (!IsValidMove(ref validMoves, new Vector2Int(x, y)))
+            return;
+
         if (pieces[x, y] != null)
         {
             Piece target = pieces[x, y];
@@ -234,6 +251,29 @@ public class Chessboard : MonoBehaviour
         piece.GetComponent<MeshRenderer>().material = teamMaterials[(int)team - 1];
 
         return piece;
+    }
+
+    private void HighlightMoves()
+    {
+        for(int i = 0; i < validMoves.Count; i++)
+            tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Highlight");
+    }
+
+    private void RemoveHighlights()
+    {
+        for (int i = 0; i < validMoves.Count; i++)
+            tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Tile");
+
+        validMoves.Clear();
+    }
+
+    private bool IsValidMove(ref List<Vector2Int> vm, Vector2Int cp)
+    {
+        for(int i = 0; i < vm.Count; i++)
+            if (vm[i].x == cp.x && vm[i].y == cp.y)
+                return true;
+
+        return false;
     }
 }
 
