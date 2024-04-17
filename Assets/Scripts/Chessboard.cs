@@ -49,7 +49,7 @@ public class Chessboard : MonoBehaviour
         Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out info, 100, LayerMask.GetMask("Tile", "Hover")))
         {
-            //get indexes of hit tile
+            // Get indexes of hit tile
             Vector2Int hitPosition = LookupTileIndex(info.transform.gameObject);
 
             if (currentHover == -Vector2Int.one)
@@ -66,16 +66,16 @@ public class Chessboard : MonoBehaviour
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
 
-            //Is left mouse button clicked
-            if (Input.GetMouseButtonDown(0)) 
+            // Is left mouse button clicked
+            if (Input.GetMouseButtonDown(0))
             {
-                if (currentPiece != null) 
+                if (currentPiece != null)
                 {
-                    MovePiece(currentPiece, currentHover.x, currentHover.y);
+                    MovePiece(currentPiece, hitPosition.x, hitPosition.y);
                 }
-                else if (pieces[currentHover.x, currentHover.y] != null) 
+                else if (pieces[hitPosition.x, hitPosition.y] != null)
                 {
-                    currentPiece = pieces[currentHover.x, currentHover.y];
+                    currentPiece = pieces[hitPosition.x, hitPosition.y];
                 }
             }
         }
@@ -89,7 +89,7 @@ public class Chessboard : MonoBehaviour
         }
     }
 
-    //Generate the board
+    // Generate the board
     private void GenerateAllTiles(float tileSize, int tileCountX, int tileCountY)
     {
         yOffset += transform.position.y;
@@ -131,7 +131,7 @@ public class Chessboard : MonoBehaviour
         return tileObject;
     }
 
-    //Operation
+    // Operation
     private Vector2Int LookupTileIndex(GameObject hitInfo)
     {
         for (int x = 0; x < TILE_COUNT_X; x++)
@@ -139,10 +139,10 @@ public class Chessboard : MonoBehaviour
                 if (tiles[x, y] == hitInfo)
                     return new Vector2Int(x, y);
 
-        return -Vector2Int.one; //u slucaju greske
+        return -Vector2Int.one; // Error
     }
 
-    //Positioning
+    // Positioning
     private void PositionAllPieces() 
     {
         for (int x = 0; x < TILE_COUNT_X; x++)
@@ -155,12 +155,12 @@ public class Chessboard : MonoBehaviour
     {
         pieces[x, y].currentX = x;
         pieces[x, y].currentY = y;
-        pieces[x, y].transform.position = GetTileCenter(x, y);
+        pieces[x, y].SetPosition(GetTileCenter(x, y), animate);
     }
 
     private Vector3 GetTileCenter(int x, int y) 
     {
-        return new Vector3(x * tileSize, yOffset, y * tileSize) + new Vector3(tileSize/2, 0, tileSize/2) - bounds;
+        return new Vector3(x * tileSize, yOffset, y * tileSize) - bounds + new Vector3(tileSize/2, 0, tileSize/2);
     }
 
     private void MovePiece(Piece piece, int x, int y) 
@@ -168,38 +168,39 @@ public class Chessboard : MonoBehaviour
         if (pieces[x, y] != null)
         {
             Piece target = pieces[x, y];
+
             if (target.team == piece.team)
                 return;
 
-            if (target.type != PieceType.King) 
+            if (target.type != PieceType.King)
             {
-                target.transform.localScale = Vector3.one * deathScale;
-                if (target.team == TeamColor.White) 
+                target.SetScale(Vector3.one * deathScale);
+                if (target.team == TeamColor.White)
                 {
-                    target.transform.position = GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing;
+                    target.SetPosition(GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing);
                     deadWhites.Add(target);
                 }
                 else
                 {
-                    target.transform.position = GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing;
+                    target.SetPosition(GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing);
                     deadBlacks.Add(target);
                 }
             }
         }
 
-        pieces[piece.currentX, piece.currentY] = null;
         pieces[x, y] = piece;
+        pieces[piece.currentX, piece.currentY] = null;
         PositionSinglePiece(x, y);
 
         currentPiece = null;
     }
 
-    //Spawning
+    // Spawning
     private void SpawnAllPieces()
     {
         pieces = new Piece[TILE_COUNT_X, TILE_COUNT_Y];
 
-        //White
+        // White
         pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
         pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
         pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
@@ -208,20 +209,18 @@ public class Chessboard : MonoBehaviour
         pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
         pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
         pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
-
         for(int i = 0; i < TILE_COUNT_X; i++)
             pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, TeamColor.White);
 
-        //Black
+        // Black
         pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
         pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
         pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
-        pieces[3, 7] = SpawnSinglePiece(PieceType.King, TeamColor.Black);
-        pieces[4, 7] = SpawnSinglePiece(PieceType.Queen, TeamColor.Black);
+        pieces[3, 7] = SpawnSinglePiece(PieceType.Queen, TeamColor.Black);
+        pieces[4, 7] = SpawnSinglePiece(PieceType.King, TeamColor.Black);
         pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
         pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
         pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
-
         for (int i = 0; i < TILE_COUNT_X; i++)
             pieces[i, 6] = SpawnSinglePiece(PieceType.Pawn, TeamColor.Black);
     }
@@ -229,6 +228,7 @@ public class Chessboard : MonoBehaviour
     private Piece SpawnSinglePiece(PieceType type, TeamColor team)
     {
         Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
+        
         piece.type = type;
         piece.team = team;
         piece.GetComponent<MeshRenderer>().material = teamMaterials[(int)team - 1];
