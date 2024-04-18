@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class King : Piece
 {
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
@@ -16,7 +16,7 @@ public class King : Piece
             x = currentX + dx[i];
             y = currentY + dy[i];
 
-            if (x >= 0 && y >= 0 && x < tileCountX && y < tileCountY)
+            if (x >= 0 && y >= 0 && x < tileCount && y < tileCount)
                 if (board[x, y] == null || board[x, y].team != team)
                     moves.Add(new Vector2Int(x, y));
         }

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Bishop : Piece
 {
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
     {
         List<Vector2Int> moves  = new List<Vector2Int>();
 
         // Forward right
-        for (int x = currentX + 1, y = currentY + 1; x < tileCountX && y < tileCountY; x++, y++)
+        for (int x = currentX + 1, y = currentY + 1; x < tileCount && y < tileCount; x++, y++)
         {
             if (board[x, y] == null)
                 moves.Add(new Vector2Int(x, y));
@@ -23,7 +23,7 @@ public class Bishop : Piece
         }
 
         // Forward left
-        for (int x = currentX - 1, y = currentY + 1; x >= 0 && y < tileCountY; x--, y++)
+        for (int x = currentX - 1, y = currentY + 1; x >= 0 && y < tileCount; x--, y++)
         {
             if (board[x, y] == null)
                 moves.Add(new Vector2Int(x, y));
@@ -37,7 +37,7 @@ public class Bishop : Piece
         }
 
         // Backward right
-        for (int x = currentX + 1, y = currentY - 1; x < tileCountX && y >= 0; x++, y--)
+        for (int x = currentX + 1, y = currentY - 1; x < tileCount && y >= 0; x++, y--)
         {
             if (board[x, y] == null)
                 moves.Add(new Vector2Int(x, y));

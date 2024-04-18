@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Pawn : Piece
 {
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
@@ -25,7 +25,7 @@ public class Pawn : Piece
         }
 
         //Eating
-        if (currentX != tileCountX - 1)
+        if (currentX != tileCount - 1)
             if (board[currentX + 1, currentY + direction] != null && board[currentX + 1, currentY + direction].team != team)
                 moves.Add(new Vector2Int(currentX + 1, currentY + direction));
 

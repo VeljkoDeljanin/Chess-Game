@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class Rook : Piece
 {
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
     {
         List<Vector2Int> moves = new List<Vector2Int> ();
 
         //Forward
-        for(int i = currentY + 1; i < tileCountY; i++)
+        for(int i = currentY + 1; i < tileCount; i++)
         {
             if (board[currentX, i] == null)
                 moves.Add(new Vector2Int(currentX, i));
@@ -34,7 +34,7 @@ public class Rook : Piece
         }
 
         //Right
-        for (int i = currentX + 1; i < tileCountX; i++)
+        for (int i = currentX + 1; i < tileCount; i++)
         {
             if (board[i, currentY] == null)
                 moves.Add(new Vector2Int(i, currentY));

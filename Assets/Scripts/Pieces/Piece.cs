@@ -39,7 +39,7 @@ public class Piece : MonoBehaviour
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * 10);
     }
 
-    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
