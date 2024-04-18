@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class Bishop : Piece
@@ -7,54 +8,58 @@ public class Bishop : Piece
     {
         List<Vector2Int> moves  = new List<Vector2Int>();
 
-        //Forward-Right
-        for (int i = currentX + 1, j = currentY + 1; i < tileCountX && j < tileCountY; i++, j++)
+        // Forward right
+        for (int x = currentX + 1, y = currentY + 1; x < tileCountX && y < tileCountY; x++, y++)
         {
-            if (board[i, j] == null)
-                moves.Add(new Vector2Int(i, j));
+            if (board[x, y] == null)
+                moves.Add(new Vector2Int(x, y));
             else
             {
-                if (board[i, j].team != team)
-                    moves.Add(new Vector2Int(i, j));
+                if (board[x, y].team != team)
+                    moves.Add(new Vector2Int(x, y));
+
                 break;
             }
         }
 
-        //Forward-Left
-        for (int i = currentX - 1, j = currentY + 1; i >= 0 && j <= tileCountY; i--, j++)
+        // Forward left
+        for (int x = currentX - 1, y = currentY + 1; x >= 0 && y < tileCountY; x--, y++)
         {
-            if (board[i, j] == null)
-                moves.Add(new Vector2Int(i, j));
+            if (board[x, y] == null)
+                moves.Add(new Vector2Int(x, y));
             else
             {
-                if (board[i, j].team != team)
-                    moves.Add(new Vector2Int(i, j));
+                if (board[x, y].team != team)
+                    moves.Add(new Vector2Int(x, y));
+
                 break;
             }
         }
 
-        //Backward-Right
-        for (int i = currentX + 1, j = currentY - 1; i < tileCountX && j >= 0; i++, j--)
+        // Backward right
+        for (int x = currentX + 1, y = currentY - 1; x < tileCountX && y >= 0; x++, y--)
         {
-            if (board[i, j] == null)
-                moves.Add(new Vector2Int(i, j));
+            if (board[x, y] == null)
+                moves.Add(new Vector2Int(x, y));
             else
             {
-                if (board[i, j].team != team)
-                    moves.Add(new Vector2Int(i, j));
+                if (board[x, y].team != team)
+                    moves.Add(new Vector2Int(x, y));
+
                 break;
             }
         }
 
-        //Backward-Left
-        for (int i = currentX - 1, j = currentY - 1; i >= 0 && j >= 0; i--, j--)
+        // Backward left
+        for (int x = currentX - 1, y = currentY - 1; x >= 0 && y >= 0; x--, y--)
         {
-            if (board[i, j] == null)
-                moves.Add(new Vector2Int(i, j));
+            if (board[x, y] == null)
+                moves.Add(new Vector2Int(x, y));
             else
             {
-                if (board[i, j].team != team)
-                    moves.Add(new Vector2Int(i, j));
+                if (board[x, y].team != team)
+                    moves.Add(new Vector2Int(x, y));
+
                 break;
             }
         }

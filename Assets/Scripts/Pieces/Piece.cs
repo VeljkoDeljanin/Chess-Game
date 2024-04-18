@@ -39,24 +39,23 @@ public class Piece : MonoBehaviour
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * 10);
     }
 
+    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
+    {
+        List<Vector2Int> moves = new List<Vector2Int>();
+
+        return moves;
+    }
+
     public void SetPosition(Vector3 position, bool animate = true)
     {
         desiredPosition = position;
         if (!animate)
             transform.position = desiredPosition;
     }
-
     public void SetScale(Vector3 scale, bool animate = true)
     {
         desiredScale = scale;
         if (!animate)
             transform.localScale = desiredScale;
-    }
-
-    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCountX, int tileCountY)
-    {
-        List<Vector2Int> moves = new List<Vector2Int>();
-
-        return moves;
     }
 }
