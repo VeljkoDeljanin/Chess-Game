@@ -26,11 +26,11 @@ public class Piece : MonoBehaviour
     public int currentX, currentY;
 
     private Vector3 desiredPosition;
-    private Vector3 desiredScale = Vector3.one;
+    private Vector3 desiredScale = Vector3.one * 1.2f;
 
     private void Start()
     {
-        transform.rotation = Quaternion.Euler((team == TeamColor.Black) ? new Vector3(0, 180, 0) : new Vector3(0, 0, 0));
+        transform.rotation = Quaternion.Euler((team == TeamColor.Black) ? new Vector3(0, 180, 0) : Vector3.zero);
     }
 
     private void Update()
