@@ -28,9 +28,12 @@ public class Chessboard : MonoBehaviour
     private List<Vector2Int> validMoves = new List<Vector2Int>();
     private List<Piece> deadWhites = new List<Piece>();
     private List<Piece> deadBlacks = new List<Piece>();
+    private bool isWhiteTurn;
 
     public void Awake() 
     {
+        isWhiteTurn = true;
+
         GenerateAllTiles(tileSize, TILE_COUNT_X, TILE_COUNT_Y);
 
         SpawnAllPieces();
@@ -89,7 +92,8 @@ public class Chessboard : MonoBehaviour
                 else if (pieces[hitPosition.x, hitPosition.y] != null)
                 {
                     // Is it our turn?
-                    if (true)
+                    if ((pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn) ||
+                        (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn))
                     {
                         currentPiece = pieces[hitPosition.x, hitPosition.y];
 
@@ -275,6 +279,8 @@ public class Chessboard : MonoBehaviour
         pieces[piece.currentX, piece.currentY] = null;
 
         PositionSinglePiece(x, y);
+
+        isWhiteTurn = !isWhiteTurn;
 
         if (currentPiece != null)
             currentPiece = null;
