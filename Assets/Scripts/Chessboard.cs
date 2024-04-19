@@ -5,32 +5,34 @@ using UnityEngine;
 public class Chessboard : MonoBehaviour
 {
     [Header("Art Stuff")]
-    private static float deathScale = 0.6f;
-    private static float deathSpacing = 0.15f;
-
+    [SerializeField] private GameObject _victoryScreen;
 
     [Header("Prefabs and Materials")]
     [SerializeField] private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
 
+    private static GameObject victoryScreen { get; set; }
+
     // Logic
     private const int TILE_COUNT = 8;
-    
     private static Piece[,] pieces;
     private static Piece currentPiece;
     private static List<Vector2Int> validMoves = new List<Vector2Int>();
     private static List<Piece> deadWhites = new List<Piece>();
     private static List<Piece> deadBlacks = new List<Piece>();
+    private static float deathScale = 0.6f;
+    private static float deathSpacing = 0.15f;
     private static bool isWhiteTurn;
 
     public void Awake() 
     {
-        isWhiteTurn = true;
+        victoryScreen = _victoryScreen;
 
         Tile.GenerateAllTiles(TILE_COUNT, transform);
 
         SpawnAllPieces();
         PositionAllPieces();
+        isWhiteTurn = true;
     }
 
     private void Update()
@@ -101,14 +103,21 @@ public class Chessboard : MonoBehaviour
             Piece target = pieces[x, y];
 
             // TODO: King check logic
+
             target.SetScale(Vector3.one * deathScale);
             if (target.team == TeamColor.White)
             {
+                if (target.type == PieceType.King)
+                    Checkmate(TeamColor.Black);
+
                 target.SetPosition(Tile.GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing);
                 deadWhites.Add(target);
             }
             else
             {
+                if (target.type == PieceType.King)
+                    Checkmate(TeamColor.White);
+
                 target.SetPosition(Tile.GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing);
                 deadBlacks.Add(target);
             }
@@ -126,4 +135,49 @@ public class Chessboard : MonoBehaviour
         Tile.RemoveHighlights(ref validMoves); 
     }
 
+    // Checkmate
+    private static void Checkmate(TeamColor winningTeam)
+    {
+        victoryScreen.SetActive(true);
+        victoryScreen.transform.GetChild((int)winningTeam - 1).gameObject.SetActive(true);
+    }
+    public void OnResetButton()
+    {
+        // UI
+        victoryScreen.transform.GetChild((int)TeamColor.White - 1).gameObject.SetActive(false);
+        victoryScreen.transform.GetChild((int)TeamColor.Black - 1).gameObject.SetActive(false);
+        victoryScreen.SetActive(false);
+
+        // Fields reset
+        currentPiece = null;
+        validMoves.Clear();
+
+        // Clean up
+        for (int x = 0; x < TILE_COUNT; x++)
+        {
+            for (int y = 0; y < TILE_COUNT; y++)
+            {
+                if (pieces[x, y] != null)
+                    Destroy(pieces[x, y].gameObject);
+
+                pieces[x, y] = null;
+            }
+        }
+
+        for (int i = 0; i < deadWhites.Count; i++)
+            Destroy(deadWhites[i].gameObject);
+        for (int i = 0; i < deadBlacks.Count; i++)
+            Destroy(deadBlacks[i].gameObject);
+
+        deadWhites.Clear();
+        deadBlacks.Clear();
+
+        SpawnAllPieces();
+        PositionAllPieces();
+        isWhiteTurn = true;
+    }
+    public void OnExitButton()
+    {
+        Application.Quit();
+    }
 }

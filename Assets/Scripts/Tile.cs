@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public static float yOffset = 0.185f;
     private static Material tileMaterial;
+    private static float tileSize = 0.3f;
+    public static float yOffset = 0.185f;
 
     public static GameObject[,] tiles;
-
     private static Vector3 boardCenter = Vector3.zero;
     private static Vector3 bounds;
-    private static float tileSize = 0.3f;
 
+    // Generate tiles
     public static void GenerateAllTiles(int tileCount, Transform transform)
     {
         yOffset += transform.position.y;
@@ -23,7 +23,6 @@ public class Tile : MonoBehaviour
             for (int y = 0; y < tileCount; y++)
                 tiles[x, y] = GenerateSingleTile(x, y, transform);
     }
-
     private static GameObject GenerateSingleTile(int x, int y, Transform transform)
     {
         GameObject tileObject = new GameObject($"X: {x}, Y: {y}");
@@ -55,6 +54,7 @@ public class Tile : MonoBehaviour
         return tileObject;
     }
 
+    // Highlight Tiles
     public static void HighlightMoves(ref List<Vector2Int> validMoves)
     {
         for (int i = 0; i < validMoves.Count; i++)
@@ -68,6 +68,7 @@ public class Tile : MonoBehaviour
         validMoves.Clear();
     }
 
+    // Utility
     public static Vector2Int LookupTileIndex(GameObject hitInfo, int tileCount)
     {
         for (int x = 0; x < tileCount; x++)
@@ -77,7 +78,6 @@ public class Tile : MonoBehaviour
 
         return -Vector2Int.one; // Error
     }
-
     public static Vector3 GetTileCenter(int x, int y)
     {
         return new Vector3(x * tileSize, yOffset, y * tileSize) - bounds + new Vector3(tileSize / 2, 0, tileSize / 2);

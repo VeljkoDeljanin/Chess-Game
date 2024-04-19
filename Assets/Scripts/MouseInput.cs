@@ -10,6 +10,8 @@ public class MouseInput : MonoBehaviour
     private static RaycastHit info;
     private static Ray ray;
 
+    private static float distance;
+
     public static void UpdateInput(ref List<Vector2Int> validMoves, ref Piece[,] pieces, ref Piece currentPiece, bool isWhiteTurn, int tileCount)
     {
         UpdateCamera();
@@ -90,11 +92,19 @@ public class MouseInput : MonoBehaviour
         if (currentPiece != null)
         {
             Plane horizontalPlane = new Plane(Vector3.up, Vector3.up * Tile.yOffset);
-            float distance = 0.0f;
+            distance = 0.0f;
             if (horizontalPlane.Raycast(ray, out distance))
                 currentPiece.SetPosition(ray.GetPoint(distance) + Vector3.up * 0.2f);
         }
+    }
 
+    private static void UpdateCamera()
+    {
+        if (!currentCamera)
+        {
+            currentCamera = Camera.main;
+            return;
+        }
     }
 
     private static bool IsValidMove(ref List<Vector2Int> moves, Vector2Int pos)
@@ -105,14 +115,4 @@ public class MouseInput : MonoBehaviour
 
         return false;
     }
-
-    private static void UpdateCamera() 
-    {
-        if (!currentCamera)
-        {
-            currentCamera = Camera.main;
-            return;
-        }
-    }
-
 }
