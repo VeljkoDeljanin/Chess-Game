@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class Chessboard : MonoBehaviour
     [SerializeField] private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
 
-    private static GameObject victoryScreen { get; set; }
+    private static GameObject victoryScreen; 
 
     // Logic
     private const int TILE_COUNT = 8;
@@ -23,6 +24,8 @@ public class Chessboard : MonoBehaviour
     private static float deathScale = 0.6f;
     private static float deathSpacing = 0.15f;
     private static bool isWhiteTurn;
+    public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new(0, 0), new (0, 0));    
+    public static bool enPassant = false;
 
     public void Awake() 
     {
@@ -97,10 +100,16 @@ public class Chessboard : MonoBehaviour
     
     public static void MovePiece(Piece piece, int x, int y)
     {
+
+        int y2 = y;
+        if (enPassant)
+            y2 += ((piece.team == TeamColor.White) ? -1 : 1);
         // Is there another piece on the target position?
-        if (pieces[x, y] != null)
+        if (pieces[x, y2] != null)
         {
-            Piece target = pieces[x, y];
+
+            Piece target = pieces[x, y2];
+            print(target);
 
             // TODO: King check logic
 
@@ -123,12 +132,15 @@ public class Chessboard : MonoBehaviour
             }
         }
 
+        lastMove = new Tuple<Vector2Int, Vector2Int>(new(piece.currentX, piece.currentY), new(x, y));
         pieces[x, y] = piece;
         pieces[piece.currentX, piece.currentY] = null;
 
         PositionSinglePiece(x, y);
 
+
         isWhiteTurn = !isWhiteTurn;
+        enPassant = false;
 
         if (currentPiece != null)
             currentPiece = null;

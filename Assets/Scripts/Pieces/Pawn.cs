@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Pawn : Piece
@@ -32,6 +33,23 @@ public class Pawn : Piece
         if (currentX != 0)
             if (board[currentX - 1, currentY + direction] != null && board[currentX - 1, currentY + direction].team != team)
                 moves.Add(new Vector2Int(currentX - 1, currentY + direction));
+
+        //En passant
+        int x1 = Chessboard.lastMove.Item1.x;
+        int x2 = Chessboard.lastMove.Item2.x;
+        int y1 = Chessboard.lastMove.Item1.y;
+        int y2 = Chessboard.lastMove.Item2.y;
+
+        if (currentY == y2 && board[x2, y2].type == PieceType.Pawn &&
+            board[x2, y2].team != team && Mathf.Abs(y1 - y2) == 2)
+        {
+            if (x2 == currentX - 1 || x2 == currentX + 1)
+            {
+                moves.Add(new Vector2Int(x2, currentY + direction));
+                Chessboard.enPassant = true;
+            }
+        }
+ 
 
 
         return moves;
