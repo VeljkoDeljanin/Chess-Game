@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class Chessboard : MonoBehaviour
@@ -25,13 +22,13 @@ public class Chessboard : MonoBehaviour
     private const int TILE_COUNT = 8;
     private static Piece[,] pieces;
     private static Piece currentPiece;
-    private static List<Vector2Int> validMoves = new List<Vector2Int>();
-    private static List<Piece> deadWhites = new List<Piece>();
-    private static List<Piece> deadBlacks = new List<Piece>();
+    private static List<Vector2Int> validMoves = new();
+    private static List<Piece> deadWhites = new();
+    private static List<Piece> deadBlacks = new();
     private static float deathScale = 0.6f;
     private static float deathSpacing = 0.15f;
     private static bool isWhiteTurn;
-    public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new(0, 0), new (0, 0));    
+    public static Tuple<Vector2Int, Vector2Int> lastMove = new(new(0, 0), new(0, 0));    
     public static bool enPassant = false;
     public static PieceType promotionType = 0;
     private static bool promotionMenuActive = false;
@@ -50,7 +47,6 @@ public class Chessboard : MonoBehaviour
         PositionAllPieces();
         isWhiteTurn = true;
     }
-
     private void Update()
     {
         if(!promotionMenuActive)
@@ -209,30 +205,7 @@ public class Chessboard : MonoBehaviour
         Application.Quit();
     }
 
-    public void OnQueenButton()
-    {
-        promotionType = PieceType.Queen;
-        ProcessPromotion();
-    }
-
-    public void OnRookButton()
-    {
-        promotionType = PieceType.Rook;
-        ProcessPromotion();
-    }
-
-    public void OnBishopButton()
-    {
-        promotionType = PieceType.Bishop;
-        ProcessPromotion();
-    }
-
-    public void OnKnightButton()
-    {
-        promotionType = PieceType.Knight;
-        ProcessPromotion();
-    }
-
+    // Promotion
     private static void ActivatePromotionMenu()
     {
         if (pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn)
@@ -240,10 +213,10 @@ public class Chessboard : MonoBehaviour
             {
                 promotionMenuActive = true;
                 promotionMenu.SetActive(true);
+                promotionMenu.transform.GetChild((int)pieces[lastMove.Item2.x, lastMove.Item2.y].team - 1).gameObject.SetActive(true);
             }
         promotionType = PieceType.None;
     }
-
     private static void ProcessPromotion()
     {
         Destroy(pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
@@ -252,6 +225,28 @@ public class Chessboard : MonoBehaviour
 
         PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
         promotionMenuActive = false;
+        promotionMenu.transform.GetChild((int)TeamColor.White - 1).gameObject.SetActive(false);
+        promotionMenu.transform.GetChild((int)TeamColor.Black - 1).gameObject.SetActive(false);
         promotionMenu.SetActive(false);
+    }
+    public void OnQueenButton()
+    {
+        promotionType = PieceType.Queen;
+        ProcessPromotion();
+    }
+    public void OnRookButton()
+    {
+        promotionType = PieceType.Rook;
+        ProcessPromotion();
+    }
+    public void OnBishopButton()
+    {
+        promotionType = PieceType.Bishop;
+        ProcessPromotion();
+    }
+    public void OnKnightButton()
+    {
+        promotionType = PieceType.Knight;
+        ProcessPromotion();
     }
 }
