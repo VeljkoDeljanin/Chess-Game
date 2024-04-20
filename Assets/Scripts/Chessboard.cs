@@ -1,18 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class Chessboard : MonoBehaviour
 {
     [Header("Art Stuff")]
     [SerializeField] private GameObject _victoryScreen;
+    [SerializeField] private GameObject _promotionMenu;
 
     [Header("Prefabs and Materials")]
-    [SerializeField] private GameObject[] prefabs;
-    [SerializeField] private Material[] teamMaterials;
+    [SerializeField] private GameObject[] _prefabs;
+    [SerializeField] private Material[] _teamMaterials;
 
     private static GameObject victoryScreen; 
+    private static GameObject promotionMenu;
+    private static GameObject[] prefabs;
+    private static Material[] teamMaterials;
+    private static Transform transform2;
 
     // Logic
     private const int TILE_COUNT = 8;
@@ -26,10 +33,16 @@ public class Chessboard : MonoBehaviour
     private static bool isWhiteTurn;
     public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new(0, 0), new (0, 0));    
     public static bool enPassant = false;
+    public static PieceType promotionType = 0;
+    private static bool promotionMenuActive = false;
 
     public void Awake() 
     {
         victoryScreen = _victoryScreen;
+        promotionMenu = _promotionMenu;
+        prefabs = _prefabs;
+        teamMaterials = _teamMaterials;
+        transform2 = transform;
 
         Tile.GenerateAllTiles(TILE_COUNT, transform);
 
@@ -40,7 +53,8 @@ public class Chessboard : MonoBehaviour
 
     private void Update()
     {
-        MouseInput.UpdateInput(ref validMoves, ref pieces, ref currentPiece, isWhiteTurn, TILE_COUNT);
+        if(!promotionMenuActive)
+            MouseInput.UpdateInput(ref validMoves, ref pieces, ref currentPiece, isWhiteTurn, TILE_COUNT);
     }
 
     // Spawning the pieces
@@ -72,9 +86,9 @@ public class Chessboard : MonoBehaviour
         for (int i = 0; i < TILE_COUNT; i++)
             pieces[i, 6] = SpawnSinglePiece(PieceType.Pawn, TeamColor.Black);
     }
-    private Piece SpawnSinglePiece(PieceType type, TeamColor team)
+    private static Piece SpawnSinglePiece(PieceType type, TeamColor team)
     {
-        Piece piece = Instantiate(prefabs[(int)type - 1], transform).GetComponent<Piece>();
+        Piece piece = Instantiate(prefabs[(int)type - 1], transform2).GetComponent<Piece>();
 
         piece.type = type;
         piece.team = team;
@@ -138,6 +152,8 @@ public class Chessboard : MonoBehaviour
 
         PositionSinglePiece(x, y);
 
+        ActivatePromotionMenu();
+
 
         isWhiteTurn = !isWhiteTurn;
         enPassant = false;
@@ -191,5 +207,51 @@ public class Chessboard : MonoBehaviour
     public void OnExitButton()
     {
         Application.Quit();
+    }
+
+    public void OnQueenButton()
+    {
+        promotionType = PieceType.Queen;
+        ProcessPromotion();
+    }
+
+    public void OnRookButton()
+    {
+        promotionType = PieceType.Rook;
+        ProcessPromotion();
+    }
+
+    public void OnBishopButton()
+    {
+        promotionType = PieceType.Bishop;
+        ProcessPromotion();
+    }
+
+    public void OnKnightButton()
+    {
+        promotionType = PieceType.Knight;
+        ProcessPromotion();
+    }
+
+    private static void ActivatePromotionMenu()
+    {
+        if (pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn)
+            if (lastMove.Item2.y == 7 || lastMove.Item2.y == 0)
+            {
+                promotionMenuActive = true;
+                promotionMenu.SetActive(true);
+            }
+        promotionType = PieceType.None;
+    }
+
+    private static void ProcessPromotion()
+    {
+        Destroy(pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
+        Piece newPiece = SpawnSinglePiece(promotionType, (lastMove.Item2.y == 7) ? TeamColor.White : TeamColor.Black);
+        pieces[lastMove.Item2.x, lastMove.Item2.y] = newPiece;
+
+        PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
+        promotionMenuActive = false;
+        promotionMenu.SetActive(false);
     }
 }
