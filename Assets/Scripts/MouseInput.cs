@@ -106,7 +106,7 @@ public class MouseInput : MonoBehaviour
         }
     }
 
-    private static bool IsValidMove(ref List<Vector2Int> moves, Vector2Int pos)
+    public static bool IsValidMove(ref List<Vector2Int> moves, Vector2Int pos)
     {
         for (int i = 0; i < moves.Count; i++)
             if (moves[i].x == pos.x && moves[i].y == pos.y)

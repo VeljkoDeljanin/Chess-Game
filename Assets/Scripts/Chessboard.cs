@@ -145,6 +145,8 @@ public class Chessboard : MonoBehaviour
         lastMove = new Tuple<Vector2Int, Vector2Int>(new(piece.currentX, piece.currentY), new(x, y));
         pieces[x, y] = piece;
         pieces[piece.currentX, piece.currentY] = null;
+        if (enPassant)
+            pieces[x, y2] = null;
 
         PositionSinglePiece(x, y);
 
