@@ -122,21 +122,15 @@ public class Chessboard : MonoBehaviour
             Piece target = pieces[x, y2];
             print(target);
 
-            // TODO: King check logic
-
             target.SetScale(Vector3.one * deathScale);
             if (target.team == TeamColor.White)
             {
-                if (target.type == PieceType.King)
-                    Checkmate(TeamColor.Black);
 
                 target.SetPosition(Tile.GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing);
                 deadWhites.Add(target);
             }
             else
             {
-                if (target.type == PieceType.King)
-                    Checkmate(TeamColor.White);
 
                 target.SetPosition(Tile.GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing);
                 deadBlacks.Add(target);
@@ -153,16 +147,60 @@ public class Chessboard : MonoBehaviour
 
         ActivatePromotionMenu();
 
-
         isWhiteTurn = !isWhiteTurn;
         enPassant = false;
 
         if (currentPiece != null)
             currentPiece = null;
-        Tile.RemoveHighlights(ref validMoves); 
+
+        Tile.RemoveHighlights(ref validMoves);
+
+        if (IsCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White))
+            Checkmate(piece.team);
+
+        currentPiece = null;
     }
 
     // Checkmate
+    private static bool IsCheckmate(TeamColor team)
+    {
+        //Getting the king we are checking
+        Piece ourKing = null;
+        for (int i = 0; i < TILE_COUNT; i++)
+            for (int j = 0; j < TILE_COUNT; j++)
+                if (pieces[i, j] != null)
+                    if (pieces[i, j].type == PieceType.King && pieces[i, j].team == team)
+                        ourKing = pieces[i, j];
+
+        bool kingChecked = false;
+        //Asking if king is checked
+        for (int i = 0; i < TILE_COUNT; i++)
+            for (int j = 0; j < TILE_COUNT; j++)
+                if (pieces[i, j] != null && pieces[i, j].team != ourKing.team)
+                {
+                    List<Vector2Int> enemyMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT);
+                    if (MouseInput.IsValidMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY)))
+                    {
+                        kingChecked = true;
+                        break;
+                    }
+                }
+
+        int movesLeft = 0;
+        //Asking if we have any moves left
+        for (int i = 0; i < TILE_COUNT; i++)
+            for (int j = 0; j < TILE_COUNT; j++)
+                if (pieces[i, j] != null && pieces[i, j].team == ourKing.team)
+                {
+                    currentPiece = pieces[i, j];
+                    validMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT);
+                    PreventMove();
+                    if (validMoves.Count > 0)
+                        movesLeft++;
+                }
+
+        return (movesLeft == 0 && kingChecked);
+    }
     private static void Checkmate(TeamColor winningTeam)
     {
         victoryScreen.SetActive(true);
@@ -304,9 +342,19 @@ public class Chessboard : MonoBehaviour
                 board[i, j] = pieces[i, j];
 
         //Making a move
+        if (currentPiece.type == PieceType.Pawn && Math.Abs(currentPiece.currentX - x) == 1 && Math.Abs(currentPiece.currentY - y) == 1 && board[x, y] == null)
+            enPassant = true;
+        int y2 = y;
+
+        if(enPassant)
+            y2 += ((currentPiece.team == TeamColor.White) ? -1 : 1);
+        enPassant = false;
+
         board[currentPiece.currentX, currentPiece.currentY] = null;
         currentPiece.currentX = x;
         currentPiece.currentY = y;
+       
+        board[x, y2] = null;
         board[x, y] = currentPiece;
 
 
@@ -322,5 +370,4 @@ public class Chessboard : MonoBehaviour
 
         return false;
     }
-
 }
