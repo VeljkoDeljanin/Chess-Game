@@ -66,6 +66,8 @@ public class MouseInput : MonoBehaviour
                         // Get a list of valid moves
                         validMoves = currentPiece.GetValidMoves(ref pieces, tileCount);
 
+                        Chessboard.PreventMove();
+
                         Tile.HighlightMoves(ref validMoves);
                     }
                 }

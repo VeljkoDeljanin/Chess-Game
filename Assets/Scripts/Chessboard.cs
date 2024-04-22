@@ -110,7 +110,8 @@ public class Chessboard : MonoBehaviour
     
     public static void MovePiece(Piece piece, int x, int y)
     {
-
+        if(piece.type == PieceType.Pawn && Math.Abs(piece.currentX - x) == 1 && Math.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
+            enPassant = true;
         int y2 = y;
         if (enPassant)
             y2 += ((piece.team == TeamColor.White) ? -1 : 1);
@@ -251,4 +252,75 @@ public class Chessboard : MonoBehaviour
         promotionType = PieceType.Knight;
         ProcessPromotion();
     }
+
+    public static void PreventMove()
+    {
+        //Getting the king we are checking
+        Piece ourKing = null;
+        for (int i = 0; i < TILE_COUNT; i++)
+            for (int j = 0; j < TILE_COUNT; j++)
+                if (pieces[i, j] != null)
+                    if (pieces[i, j].type == PieceType.King && pieces[i, j].team == currentPiece.team)
+                        ourKing = pieces[i, j];
+            
+
+        int originalX = currentPiece.currentX;
+        int originalY = currentPiece.currentY;
+
+        List<Vector2Int> movesToRemove = new List<Vector2Int>();
+
+        //Simulating all valid moves for currentPiece
+        for(int i = 0; i < validMoves.Count; i++)
+        {
+            int x = validMoves[i].x;
+            int y = validMoves[i].y;
+            if(SimulateMove(ourKing, currentPiece, x, y))
+            {
+                movesToRemove.Add(new Vector2Int(x, y));
+            }
+            currentPiece.currentX = originalX;
+            currentPiece.currentY = originalY;
+        }
+
+        for (int i = 0; i < movesToRemove.Count; i++)
+            validMoves.Remove(movesToRemove[i]);
+
+    }
+
+    private static bool SimulateMove(Piece ourKing, Piece currentPiece, int x, int y)
+    {
+        Vector2Int kingPos = new Vector2Int(ourKing.currentX, ourKing.currentY);
+
+        if(currentPiece.type == PieceType.King)
+        {
+            kingPos.x = x;
+            kingPos.y = y;
+        }
+
+        //Copying board
+        Piece[,] board = new Piece[TILE_COUNT, TILE_COUNT];
+        for (int i = 0; i < TILE_COUNT; i++)
+            for (int j = 0; j < TILE_COUNT; j++)
+                board[i, j] = pieces[i, j];
+
+        //Making a move
+        board[currentPiece.currentX, currentPiece.currentY] = null;
+        currentPiece.currentX = x;
+        currentPiece.currentY = y;
+        board[x, y] = currentPiece;
+
+
+        //Asking if king is checked
+        for(int i = 0; i < TILE_COUNT; i++)
+            for(int j = 0; j < TILE_COUNT; j++)
+                if (board[i, j] != null && board[i, j].team != ourKing.team)
+                {
+                    List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TILE_COUNT);
+                    if (MouseInput.IsValidMove(ref enemyMoves, kingPos))
+                        return true;
+                }
+
+        return false;
+    }
+
 }

@@ -40,13 +40,8 @@ public class Pawn : Piece
 
         if (currentY == y2 && board[x2, y2].type == PieceType.Pawn &&
             board[x2, y2].team != team && Mathf.Abs(y1 - y2) == 2)
-        {
             if (x2 == currentX - 1 || x2 == currentX + 1)
-            {
                 moves.Add(new Vector2Int(x2, currentY + direction));
-                Chessboard.enPassant = true;
-            }
-        }
  
 
 
