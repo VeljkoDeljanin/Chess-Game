@@ -7,6 +7,7 @@ public class Chessboard : MonoBehaviour
     [Header("Art Stuff")]
     [SerializeField] private GameObject _victoryScreen;
     [SerializeField] private GameObject _promotionMenu;
+    [SerializeField] private GameObject _stalemateScreen;
 
     [Header("Prefabs and Materials")]
     [SerializeField] private GameObject[] _prefabs;
@@ -14,6 +15,7 @@ public class Chessboard : MonoBehaviour
 
     private static GameObject victoryScreen; 
     private static GameObject promotionMenu;
+    private static GameObject stalemateScreen;
     private static GameObject[] prefabs;
     private static Material[] teamMaterials;
     private static Transform transform2;
@@ -37,6 +39,7 @@ public class Chessboard : MonoBehaviour
     {
         victoryScreen = _victoryScreen;
         promotionMenu = _promotionMenu;
+        stalemateScreen = _stalemateScreen;
         prefabs = _prefabs;
         teamMaterials = _teamMaterials;
         transform2 = transform;
@@ -125,13 +128,11 @@ public class Chessboard : MonoBehaviour
             target.SetScale(Vector3.one * deathScale);
             if (target.team == TeamColor.White)
             {
-
                 target.SetPosition(Tile.GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing);
                 deadWhites.Add(target);
             }
             else
             {
-
                 target.SetPosition(Tile.GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing);
                 deadBlacks.Add(target);
             }
@@ -155,14 +156,13 @@ public class Chessboard : MonoBehaviour
 
         Tile.RemoveHighlights(ref validMoves);
 
-        if (IsCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White))
-            Checkmate(piece.team);
-
+        IsCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+        
         currentPiece = null;
     }
 
     // Checkmate
-    private static bool IsCheckmate(TeamColor team)
+    private static void IsCheckmate(TeamColor team)
     {
         //Getting the king we are checking
         Piece ourKing = null;
@@ -199,7 +199,15 @@ public class Chessboard : MonoBehaviour
                         movesLeft++;
                 }
 
-        return (movesLeft == 0 && kingChecked);
+        if (movesLeft == 0 && kingChecked)
+            Checkmate(team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+        else if (movesLeft == 0 && !kingChecked)
+            Stalemate();
+    }
+
+    private static void Stalemate()
+    {
+        stalemateScreen.SetActive(true);
     }
     private static void Checkmate(TeamColor winningTeam)
     {
