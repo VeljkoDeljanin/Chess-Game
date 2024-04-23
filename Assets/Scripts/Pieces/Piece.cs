@@ -24,6 +24,7 @@ public class Piece : MonoBehaviour
     public PieceType type;
     public TeamColor team;
     public int currentX, currentY;
+    public bool moved = false;
 
     private Vector3 desiredPosition;
     private Vector3 desiredScale = Vector3.one * 1.2f;

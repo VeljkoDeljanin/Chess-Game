@@ -21,6 +21,48 @@ public class King : Piece
                     moves.Add(new Vector2Int(x, y));
         }
 
+        //Castling
+        if (!moved)
+        {
+            x = currentX;
+            y = currentY;
+
+            Piece leftRook = null;
+            Piece rightRook = null;
+            if(team == TeamColor.White)
+            {
+                if (board[0,0] != null)
+                    leftRook = board[0,0];
+
+                if (board[7,0] != null)
+                    rightRook = board[7,0];
+            }
+            else
+            {
+                if (board[0, 7] != null)
+                    leftRook = board[0, 7];
+
+                if (board[7, 7] != null)
+                    rightRook = board[7, 7];
+            }
+            //Left castle
+            if(leftRook != null && !leftRook.moved)
+            {
+                if (board[x-1,y] == null && board[x-2,y] == null && board[x-3,y] == null)
+                {
+                    moves.Add(new Vector2Int(x-2, y));
+                }
+            }
+            //Right castle
+            if(rightRook != null && !rightRook.moved)
+            {
+                if (board[x + 1, y] == null && board[x + 2, y] == null)
+                {
+                    moves.Add(new Vector2Int(x + 2, y));
+                }
+            }
+        }
+
         return moves;
     }
 }

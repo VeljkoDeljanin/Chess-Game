@@ -113,7 +113,10 @@ public class Chessboard : MonoBehaviour
     
     public static void MovePiece(Piece piece, int x, int y)
     {
-        if(piece.type == PieceType.Pawn && Math.Abs(piece.currentX - x) == 1 && Math.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
+
+       
+
+        if (piece.type == PieceType.Pawn && Math.Abs(piece.currentX - x) == 1 && Math.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
             enPassant = true;
         int y2 = y;
         if (enPassant)
@@ -137,6 +140,15 @@ public class Chessboard : MonoBehaviour
                 deadBlacks.Add(target);
             }
         }
+        //Castling
+        if (piece.type == PieceType.King && Math.Abs(x - piece.currentX) == 2)
+        {
+            Piece rook = pieces[(piece.currentX > x) ? 0 : 7, piece.currentY];
+
+            pieces[(piece.currentX > x) ? 3 : 5, piece.currentY] = rook;
+            PositionSinglePiece((piece.currentX > x) ? 3 : 5, piece.currentY);
+            pieces[(piece.currentX > x) ? 0 : 7, piece.currentY] = null;
+        }
 
         lastMove = new Tuple<Vector2Int, Vector2Int>(new(piece.currentX, piece.currentY), new(x, y));
         pieces[x, y] = piece;
@@ -147,6 +159,9 @@ public class Chessboard : MonoBehaviour
         PositionSinglePiece(x, y);
 
         ActivatePromotionMenu();
+
+        if (piece.type == PieceType.Rook || piece.type == PieceType.King)
+            piece.moved = true;
 
         isWhiteTurn = !isWhiteTurn;
         enPassant = false;
@@ -358,10 +373,17 @@ public class Chessboard : MonoBehaviour
             y2 += ((currentPiece.team == TeamColor.White) ? -1 : 1);
         enPassant = false;
 
+        bool castling = false;
+        if (currentPiece.type == PieceType.King && Math.Abs(x - currentPiece.currentX) == 2)
+            castling = true;
+
         board[currentPiece.currentX, currentPiece.currentY] = null;
         currentPiece.currentX = x;
         currentPiece.currentY = y;
-       
+
+        print(castling);
+           
+
         board[x, y2] = null;
         board[x, y] = currentPiece;
 
@@ -374,6 +396,13 @@ public class Chessboard : MonoBehaviour
                     List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TILE_COUNT);
                     if (MouseInput.IsValidMove(ref enemyMoves, kingPos))
                         return true;
+
+                    if (castling && (MouseInput.IsValidMove(ref enemyMoves, new(4, currentPiece.currentY)) ||
+                        MouseInput.IsValidMove(ref enemyMoves, new((currentPiece.currentX > 4) ? 5 : 3, currentPiece.currentY)))){
+                        print("AGDGD");
+                        return true;
+                    }
+
                 }
 
         return false;
