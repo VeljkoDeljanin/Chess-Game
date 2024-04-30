@@ -75,7 +75,7 @@ public class Tile : MonoBehaviour
                 if (tiles[x, y] == hitInfo)
                     return new Vector2Int(x, y);
 
-        return -Vector2Int.one; // Error
+        return -Vector2Int.one;
     }
     public static Vector3 GetTileCenter(int x, int y)
     {

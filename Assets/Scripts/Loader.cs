@@ -6,7 +6,8 @@ public static class Loader
     {
         MainMenuScene,
         GameScene,
-        LoadingScene
+        LoadingScene,
+        LobbyScene
     }
 
     private static Scene targetScene;
@@ -16,6 +17,11 @@ public static class Loader
         Loader.targetScene = targetScene;
 
         SceneManager.LoadScene(Scene.LoadingScene.ToString());
+    }
+
+    public static void LoadNetwork(Scene targetScene)
+    {
+        // TODO Network loading
     }
 
     public static void LoaderCallback()

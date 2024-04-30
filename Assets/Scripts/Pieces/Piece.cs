@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,14 +34,13 @@ public class Piece : MonoBehaviour
     {
         transform.rotation = Quaternion.Euler((team == TeamColor.Black) ? new Vector3(0, 180, 0) : Vector3.zero);
     }
-
     private void Update()
     {
         transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 10);
         transform.localScale = Vector3.Lerp(transform.localScale, desiredScale, Time.deltaTime * 10);
     }
 
-    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
+    public virtual List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount, Tuple<Vector2Int, Vector2Int> lastMove)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 

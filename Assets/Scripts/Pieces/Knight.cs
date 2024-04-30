@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Knight : Piece
 {
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount)
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount, Tuple<Vector2Int, Vector2Int> lastMove)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 

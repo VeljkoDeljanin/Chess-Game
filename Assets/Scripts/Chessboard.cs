@@ -18,7 +18,7 @@ public class Chessboard : MonoBehaviour
     private static GameObject stalemateScreen;
     private static GameObject[] prefabs;
     private static Material[] teamMaterials;
-    private static Transform transform2;
+    private static Transform chessboardTransform;
 
     // Logic
     private const int TILE_COUNT = 8;
@@ -30,7 +30,8 @@ public class Chessboard : MonoBehaviour
     private static float deathScale = 0.6f;
     private static float deathSpacing = 0.15f;
     private static bool isWhiteTurn;
-    public static Tuple<Vector2Int, Vector2Int> lastMove = new(new(0, 0), new(0, 0));    
+    public static Tuple<Vector2Int, Vector2Int> lastMove = new(new(0, 0), new(0, 0));
+    public static Tuple<Vector2Int, Vector2Int> lastSimulation = new(new(0, 0), new(0, 0));
     public static bool enPassant = false;
     public static PieceType promotionType = 0;
     private static bool promotionMenuActive = false;
@@ -42,7 +43,7 @@ public class Chessboard : MonoBehaviour
         stalemateScreen = _stalemateScreen;
         prefabs = _prefabs;
         teamMaterials = _teamMaterials;
-        transform2 = transform;
+        chessboardTransform = transform;
 
         Tile.GenerateAllTiles(TILE_COUNT, transform);
 
@@ -52,7 +53,7 @@ public class Chessboard : MonoBehaviour
     }
     private void Update()
     {
-        if(!promotionMenuActive)
+        if (!promotionMenuActive)
             MouseInput.UpdateInput(ref validMoves, ref pieces, ref currentPiece, isWhiteTurn, TILE_COUNT);
     }
 
@@ -87,7 +88,7 @@ public class Chessboard : MonoBehaviour
     }
     private static Piece SpawnSinglePiece(PieceType type, TeamColor team)
     {
-        Piece piece = Instantiate(prefabs[(int)type - 1], transform2).GetComponent<Piece>();
+        Piece piece = Instantiate(prefabs[(int)type - 1], chessboardTransform).GetComponent<Piece>();
 
         piece.type = type;
         piece.team = team;
@@ -113,35 +114,32 @@ public class Chessboard : MonoBehaviour
     
     public static void MovePiece(Piece piece, int x, int y)
     {
-
-       
-
-        if (piece.type == PieceType.Pawn && Math.Abs(piece.currentX - x) == 1 && Math.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
+        if (piece.type == PieceType.Pawn && Mathf.Abs(piece.currentX - x) == 1 && Mathf.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
             enPassant = true;
         int y2 = y;
         if (enPassant)
             y2 += ((piece.team == TeamColor.White) ? -1 : 1);
+
         // Is there another piece on the target position?
         if (pieces[x, y2] != null)
         {
-
             Piece target = pieces[x, y2];
-            print(target);
 
             target.SetScale(Vector3.one * deathScale);
             if (target.team == TeamColor.White)
             {
-                target.SetPosition(Tile.GetTileCenter(8, -1) + Vector3.forward * deadWhites.Count * deathSpacing);
+                target.SetPosition(Tile.GetTileCenter(8, -1) + deadWhites.Count * deathSpacing * Vector3.forward);
                 deadWhites.Add(target);
             }
             else
             {
-                target.SetPosition(Tile.GetTileCenter(-1, 8) + Vector3.back * deadBlacks.Count * deathSpacing);
+                target.SetPosition(Tile.GetTileCenter(-1, 8) + deadBlacks.Count * deathSpacing * Vector3.back);
                 deadBlacks.Add(target);
             }
         }
-        //Castling
-        if (piece.type == PieceType.King && Math.Abs(x - piece.currentX) == 2)
+
+        // Castling
+        if (piece.type == PieceType.King && Mathf.Abs(x - piece.currentX) == 2)
         {
             Piece rook = pieces[(piece.currentX > x) ? 0 : 7, piece.currentY];
 
@@ -166,20 +164,22 @@ public class Chessboard : MonoBehaviour
         isWhiteTurn = !isWhiteTurn;
         enPassant = false;
 
-        if (currentPiece != null)
-            currentPiece = null;
+        currentPiece = null;
 
         Tile.RemoveHighlights(ref validMoves);
 
-        IsCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+
+        print(pieces[x, y].currentX + " " + pieces[x, y].currentY);
+
+        CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
         
         currentPiece = null;
     }
 
     // Checkmate
-    private static void IsCheckmate(TeamColor team)
+    private static void CheckForCheckmate(TeamColor team)
     {
-        //Getting the king we are checking
+        // Getting the king we are checking
         Piece ourKing = null;
         for (int i = 0; i < TILE_COUNT; i++)
             for (int j = 0; j < TILE_COUNT; j++)
@@ -187,13 +187,13 @@ public class Chessboard : MonoBehaviour
                     if (pieces[i, j].type == PieceType.King && pieces[i, j].team == team)
                         ourKing = pieces[i, j];
 
+        // Is king in check?
         bool kingChecked = false;
-        //Asking if king is checked
         for (int i = 0; i < TILE_COUNT; i++)
             for (int j = 0; j < TILE_COUNT; j++)
                 if (pieces[i, j] != null && pieces[i, j].team != ourKing.team)
                 {
-                    List<Vector2Int> enemyMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT);
+                    List<Vector2Int> enemyMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT, lastMove);
                     if (MouseInput.IsValidMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY)))
                     {
                         kingChecked = true;
@@ -201,33 +201,37 @@ public class Chessboard : MonoBehaviour
                     }
                 }
 
+        // Do we have any moves left?
         int movesLeft = 0;
-        //Asking if we have any moves left
         for (int i = 0; i < TILE_COUNT; i++)
             for (int j = 0; j < TILE_COUNT; j++)
                 if (pieces[i, j] != null && pieces[i, j].team == ourKing.team)
                 {
                     currentPiece = pieces[i, j];
-                    validMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT);
+                    validMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT, lastMove);
                     PreventMove();
                     if (validMoves.Count > 0)
                         movesLeft++;
                 }
 
-        if (movesLeft == 0 && kingChecked)
-            Checkmate(team == TeamColor.White ? TeamColor.Black : TeamColor.White);
-        else if (movesLeft == 0 && !kingChecked)
-            Stalemate();
-    }
+        validMoves.Clear();
 
-    private static void Stalemate()
-    {
-        stalemateScreen.SetActive(true);
+        if (movesLeft == 0)
+        {
+            if (kingChecked)
+                Checkmate(team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+            else
+                Stalemate();
+        }
     }
     private static void Checkmate(TeamColor winningTeam)
     {
         victoryScreen.SetActive(true);
         victoryScreen.transform.GetChild((int)winningTeam - 1).gameObject.SetActive(true);
+    }
+    private static void Stalemate()
+    {
+        stalemateScreen.SetActive(true);
     }
     public void OnResetButton()
     {
@@ -314,9 +318,10 @@ public class Chessboard : MonoBehaviour
         ProcessPromotion();
     }
 
+    // Prevent check
     public static void PreventMove()
     {
-        //Getting the king we are checking
+        // Getting the king we are checking
         Piece ourKing = null;
         for (int i = 0; i < TILE_COUNT; i++)
             for (int j = 0; j < TILE_COUNT; j++)
@@ -324,33 +329,30 @@ public class Chessboard : MonoBehaviour
                     if (pieces[i, j].type == PieceType.King && pieces[i, j].team == currentPiece.team)
                         ourKing = pieces[i, j];
             
-
         int originalX = currentPiece.currentX;
         int originalY = currentPiece.currentY;
 
-        List<Vector2Int> movesToRemove = new List<Vector2Int>();
+        List<Vector2Int> movesToRemove = new();
 
-        //Simulating all valid moves for currentPiece
+        // Simulating all valid moves for selected piece
         for(int i = 0; i < validMoves.Count; i++)
         {
             int x = validMoves[i].x;
             int y = validMoves[i].y;
+
             if(SimulateMove(ourKing, currentPiece, x, y))
-            {
                 movesToRemove.Add(new Vector2Int(x, y));
-            }
+
             currentPiece.currentX = originalX;
             currentPiece.currentY = originalY;
         }
 
         for (int i = 0; i < movesToRemove.Count; i++)
             validMoves.Remove(movesToRemove[i]);
-
     }
-
     private static bool SimulateMove(Piece ourKing, Piece currentPiece, int x, int y)
     {
-        Vector2Int kingPos = new Vector2Int(ourKing.currentX, ourKing.currentY);
+        Vector2Int kingPos = new(ourKing.currentX, ourKing.currentY);
 
         if(currentPiece.type == PieceType.King)
         {
@@ -358,48 +360,46 @@ public class Chessboard : MonoBehaviour
             kingPos.y = y;
         }
 
-        //Copying board
+        // Copying board
         Piece[,] board = new Piece[TILE_COUNT, TILE_COUNT];
         for (int i = 0; i < TILE_COUNT; i++)
             for (int j = 0; j < TILE_COUNT; j++)
                 board[i, j] = pieces[i, j];
 
-        //Making a move
-        if (currentPiece.type == PieceType.Pawn && Math.Abs(currentPiece.currentX - x) == 1 && Math.Abs(currentPiece.currentY - y) == 1 && board[x, y] == null)
+        // Making a move
+        if (currentPiece.type == PieceType.Pawn && Mathf.Abs(currentPiece.currentX - x) == 1 && Mathf.Abs(currentPiece.currentY - y) == 1 && board[x, y] == null)
             enPassant = true;
         int y2 = y;
 
         if(enPassant)
             y2 += ((currentPiece.team == TeamColor.White) ? -1 : 1);
-        enPassant = false;
 
         bool castling = false;
-        if (currentPiece.type == PieceType.King && Math.Abs(x - currentPiece.currentX) == 2)
+        if (currentPiece.type == PieceType.King && Mathf.Abs(x - currentPiece.currentX) == 2)
             castling = true;
 
+        lastSimulation = new Tuple<Vector2Int, Vector2Int>(new(currentPiece.currentX, currentPiece.currentY), new(x, y));
+        board[x, y] = currentPiece;
         board[currentPiece.currentX, currentPiece.currentY] = null;
+        if (enPassant)
+            board[x, y2] = null;
+
         currentPiece.currentX = x;
         currentPiece.currentY = y;
 
-        print(castling);
-           
+        enPassant = false;
 
-        board[x, y2] = null;
-        board[x, y] = currentPiece;
-
-
-        //Asking if king is checked
+        // Is king in check?
         for(int i = 0; i < TILE_COUNT; i++)
             for(int j = 0; j < TILE_COUNT; j++)
                 if (board[i, j] != null && board[i, j].team != ourKing.team)
                 {
-                    List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TILE_COUNT);
+                    List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TILE_COUNT, lastSimulation);
                     if (MouseInput.IsValidMove(ref enemyMoves, kingPos))
                         return true;
 
                     if (castling && (MouseInput.IsValidMove(ref enemyMoves, new(4, currentPiece.currentY)) ||
                         MouseInput.IsValidMove(ref enemyMoves, new((currentPiece.currentX > 4) ? 5 : 3, currentPiece.currentY)))){
-                        print("AGDGD");
                         return true;
                     }
 

@@ -32,7 +32,6 @@ public class MouseInput : MonoBehaviour
             if (currentHover != hitPosition)
             {
                 Tile.tiles[currentHover.x, currentHover.y].layer = IsValidMove(ref validMoves, currentHover) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
-
                 currentHover = hitPosition;
                 Tile.tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
             }
@@ -64,8 +63,9 @@ public class MouseInput : MonoBehaviour
                         currentPiece = pieces[hitPosition.x, hitPosition.y];
 
                         // Get a list of valid moves
-                        validMoves = currentPiece.GetValidMoves(ref pieces, tileCount);
+                        validMoves = currentPiece.GetValidMoves(ref pieces, tileCount, Chessboard.lastMove);
 
+                        // Remove moves that put us in check
                         Chessboard.PreventMove();
 
                         Tile.HighlightMoves(ref validMoves);
@@ -89,10 +89,10 @@ public class MouseInput : MonoBehaviour
             }
         }
 
-        // If piece is selected
+        // Selected piece animation
         if (currentPiece != null)
         {
-            Plane horizontalPlane = new Plane(Vector3.up, Vector3.up * Tile.yOffset);
+            Plane horizontalPlane = new(Vector3.up, Vector3.up * Tile.yOffset);
             distance = 0.0f;
             if (horizontalPlane.Raycast(ray, out distance))
                 currentPiece.SetPosition(ray.GetPoint(distance) + Vector3.up * 0.2f);
