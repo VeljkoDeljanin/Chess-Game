@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Chessboard : MonoBehaviour
+public class Chessboard : NetworkBehaviour
 {
     [Header("Art Stuff")]
     [SerializeField] private GameObject _victoryScreen;
@@ -167,9 +168,6 @@ public class Chessboard : MonoBehaviour
         currentPiece = null;
 
         Tile.RemoveHighlights(ref validMoves);
-
-
-        print(pieces[x, y].currentX + " " + pieces[x, y].currentY);
 
         CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
         
