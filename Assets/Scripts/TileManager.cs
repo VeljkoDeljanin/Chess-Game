@@ -1,35 +1,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour
+public class TileManager : MonoBehaviour
 {
-    private static Material tileMaterial;
-    private static float tileSize = 0.3f;
-    public static float yOffset = 0.185f;
+    [SerializeField] private Transform chessboardTransform;
 
-    public static GameObject[,] tiles;
-    private static Vector3 boardCenter = Vector3.zero;
-    private static Vector3 bounds;
+    public static TileManager Instance { get; private set; }
+
+    private Material tileMaterial;
+    private readonly float tileSize = 0.3f;
+    public float yOffset = 0.185f;
+    public const int TILE_COUNT = 8;
+
+    public GameObject[,] tiles;
+    private Vector3 bounds;
+
+    private void Awake()
+    {
+        Instance = this;
+        GenerateAllTiles(TILE_COUNT, chessboardTransform);
+    }
 
     // Generate tiles
-    public static void GenerateAllTiles(int tileCount, Transform transform)
+    public void GenerateAllTiles(int tileCount, Transform transform)
     {
         yOffset += transform.position.y;
-        bounds = new Vector3((tileCount / 2) * tileSize, 0, (tileCount / 2) * tileSize) + boardCenter;
+        bounds = new Vector3((tileCount / 2) * tileSize, 0, (tileCount / 2) * tileSize);
 
         tiles = new GameObject[tileCount, tileCount];
         for (int x = 0; x < tileCount; x++)
             for (int y = 0; y < tileCount; y++)
                 tiles[x, y] = GenerateSingleTile(x, y, transform);
     }
-    private static GameObject GenerateSingleTile(int x, int y, Transform transform)
+    private GameObject GenerateSingleTile(int x, int y, Transform transform)
     {
-        GameObject tileObject = new GameObject($"X: {x}, Y: {y}");
+        GameObject tileObject = new($"X: {x}, Y: {y}");
         tileObject.transform.parent = transform;
 
         tileMaterial = Resources.Load("Materials/TransparentTiles", typeof(Material)) as Material;
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = new();
         tileObject.AddComponent<MeshFilter>().mesh = mesh;
         tileObject.AddComponent<MeshRenderer>().material = tileMaterial;
 
@@ -54,12 +64,12 @@ public class Tile : MonoBehaviour
     }
 
     // Highlight Tiles
-    public static void HighlightMoves(ref List<Vector2Int> validMoves)
+    public void HighlightMoves(ref List<Vector2Int> validMoves)
     {
         for (int i = 0; i < validMoves.Count; i++)
             tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Highlight");
     }
-    public static void RemoveHighlights(ref List<Vector2Int> validMoves)
+    public void RemoveHighlights(ref List<Vector2Int> validMoves)
     {
         for (int i = 0; i < validMoves.Count; i++)
             tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Tile");
@@ -68,7 +78,7 @@ public class Tile : MonoBehaviour
     }
 
     // Utility
-    public static Vector2Int LookupTileIndex(GameObject hitInfo, int tileCount)
+    public Vector2Int LookupTileIndex(GameObject hitInfo, int tileCount)
     {
         for (int x = 0; x < tileCount; x++)
             for (int y = 0; y < tileCount; y++)
@@ -77,7 +87,7 @@ public class Tile : MonoBehaviour
 
         return -Vector2Int.one;
     }
-    public static Vector3 GetTileCenter(int x, int y)
+    public Vector3 GetTileCenter(int x, int y)
     {
         return new Vector3(x * tileSize, yOffset, y * tileSize) - bounds + new Vector3(tileSize / 2, 0, tileSize / 2);
     }

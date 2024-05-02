@@ -1,198 +1,65 @@
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
+using TMPro;
 using UnityEngine;
 
-public class Chessboard : NetworkBehaviour
+public class Chessboard : MonoBehaviour
 {
     [Header("Art Stuff")]
     [SerializeField] private GameObject _victoryScreen;
     [SerializeField] private GameObject _promotionMenu;
-    [SerializeField] private GameObject _stalemateScreen;
+    [SerializeField] private TextMeshProUGUI _text;
 
-    [Header("Prefabs and Materials")]
-    [SerializeField] private GameObject[] _prefabs;
-    [SerializeField] private Material[] _teamMaterials;
-
-    private static GameObject victoryScreen; 
+    private static GameObject victoryScreen;
     private static GameObject promotionMenu;
-    private static GameObject stalemateScreen;
-    private static GameObject[] prefabs;
-    private static Material[] teamMaterials;
-    private static Transform chessboardTransform;
+    private static TextMeshProUGUI text;
 
     // Logic
-    private const int TILE_COUNT = 8;
-    private static Piece[,] pieces;
-    private static Piece currentPiece;
-    private static List<Vector2Int> validMoves = new();
-    private static List<Piece> deadWhites = new();
-    private static List<Piece> deadBlacks = new();
-    private static float deathScale = 0.6f;
-    private static float deathSpacing = 0.15f;
-    private static bool isWhiteTurn;
+    public static List<Vector2Int> validMoves = new();
+    public static bool isWhiteTurn;
+
+    public static List<Piece> deadWhites = new();
+    public static List<Piece> deadBlacks = new();
+    public static float deathScale = 0.6f;
+    public static float deathSpacing = 0.15f;
+
     public static Tuple<Vector2Int, Vector2Int> lastMove = new(new(0, 0), new(0, 0));
     public static Tuple<Vector2Int, Vector2Int> lastSimulation = new(new(0, 0), new(0, 0));
     public static bool enPassant = false;
     public static PieceType promotionType = 0;
-    private static bool promotionMenuActive = false;
+    public static bool promotionUIActive = false;
+    public static bool gameOverUIActive = false;
+    public static bool testingNetcodeUIActive = true;
 
-    public void Awake() 
+    private void Awake() 
     {
         victoryScreen = _victoryScreen;
         promotionMenu = _promotionMenu;
-        stalemateScreen = _stalemateScreen;
-        prefabs = _prefabs;
-        teamMaterials = _teamMaterials;
-        chessboardTransform = transform;
-
-        Tile.GenerateAllTiles(TILE_COUNT, transform);
-
-        SpawnAllPieces();
-        PositionAllPieces();
+        text = _text;
+        promotionUIActive = false;
+        gameOverUIActive = false;
         isWhiteTurn = true;
-    }
-    private void Update()
-    {
-        if (!promotionMenuActive)
-            MouseInput.UpdateInput(ref validMoves, ref pieces, ref currentPiece, isWhiteTurn, TILE_COUNT);
-    }
-
-    // Spawning the pieces
-    private void SpawnAllPieces()
-    {
-        pieces = new Piece[TILE_COUNT, TILE_COUNT];
-
-        // White
-        pieces[0, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
-        pieces[1, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
-        pieces[2, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
-        pieces[3, 0] = SpawnSinglePiece(PieceType.Queen, TeamColor.White);
-        pieces[4, 0] = SpawnSinglePiece(PieceType.King, TeamColor.White);
-        pieces[5, 0] = SpawnSinglePiece(PieceType.Bishop, TeamColor.White);
-        pieces[6, 0] = SpawnSinglePiece(PieceType.Knight, TeamColor.White);
-        pieces[7, 0] = SpawnSinglePiece(PieceType.Rook, TeamColor.White);
-        for (int i = 0; i < TILE_COUNT; i++)
-            pieces[i, 1] = SpawnSinglePiece(PieceType.Pawn, TeamColor.White);
-
-        // Black
-        pieces[0, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
-        pieces[1, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
-        pieces[2, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
-        pieces[3, 7] = SpawnSinglePiece(PieceType.Queen, TeamColor.Black);
-        pieces[4, 7] = SpawnSinglePiece(PieceType.King, TeamColor.Black);
-        pieces[5, 7] = SpawnSinglePiece(PieceType.Bishop, TeamColor.Black);
-        pieces[6, 7] = SpawnSinglePiece(PieceType.Knight, TeamColor.Black);
-        pieces[7, 7] = SpawnSinglePiece(PieceType.Rook, TeamColor.Black);
-        for (int i = 0; i < TILE_COUNT; i++)
-            pieces[i, 6] = SpawnSinglePiece(PieceType.Pawn, TeamColor.Black);
-    }
-    private static Piece SpawnSinglePiece(PieceType type, TeamColor team)
-    {
-        Piece piece = Instantiate(prefabs[(int)type - 1], chessboardTransform).GetComponent<Piece>();
-
-        piece.type = type;
-        piece.team = team;
-        piece.GetComponent<MeshRenderer>().material = teamMaterials[(int)team - 1];
-
-        return piece;
-    }
-
-    // Positioning
-    private void PositionAllPieces()
-    {
-        for (int x = 0; x < TILE_COUNT; x++)
-            for (int y = 0; y < TILE_COUNT; y++)
-                if (pieces[x, y] != null)
-                    PositionSinglePiece(x, y, false);
-    }
-    private static void PositionSinglePiece(int x, int y, bool animate = true)
-    {
-        pieces[x, y].currentX = x;
-        pieces[x, y].currentY = y;
-        pieces[x, y].SetPosition(Tile.GetTileCenter(x, y), animate);
-    }
-    
-    public static void MovePiece(Piece piece, int x, int y)
-    {
-        if (piece.type == PieceType.Pawn && Mathf.Abs(piece.currentX - x) == 1 && Mathf.Abs(piece.currentY - y) == 1 && pieces[x, y] == null)
-            enPassant = true;
-        int y2 = y;
-        if (enPassant)
-            y2 += ((piece.team == TeamColor.White) ? -1 : 1);
-
-        // Is there another piece on the target position?
-        if (pieces[x, y2] != null)
-        {
-            Piece target = pieces[x, y2];
-
-            target.SetScale(Vector3.one * deathScale);
-            if (target.team == TeamColor.White)
-            {
-                target.SetPosition(Tile.GetTileCenter(8, -1) + deadWhites.Count * deathSpacing * Vector3.forward);
-                deadWhites.Add(target);
-            }
-            else
-            {
-                target.SetPosition(Tile.GetTileCenter(-1, 8) + deadBlacks.Count * deathSpacing * Vector3.back);
-                deadBlacks.Add(target);
-            }
-        }
-
-        // Castling
-        if (piece.type == PieceType.King && Mathf.Abs(x - piece.currentX) == 2)
-        {
-            Piece rook = pieces[(piece.currentX > x) ? 0 : 7, piece.currentY];
-
-            pieces[(piece.currentX > x) ? 3 : 5, piece.currentY] = rook;
-            PositionSinglePiece((piece.currentX > x) ? 3 : 5, piece.currentY);
-            pieces[(piece.currentX > x) ? 0 : 7, piece.currentY] = null;
-        }
-
-        lastMove = new Tuple<Vector2Int, Vector2Int>(new(piece.currentX, piece.currentY), new(x, y));
-        pieces[x, y] = piece;
-        pieces[piece.currentX, piece.currentY] = null;
-        if (enPassant)
-            pieces[x, y2] = null;
-
-        PositionSinglePiece(x, y);
-
-        ActivatePromotionMenu();
-
-        if (piece.type == PieceType.Rook || piece.type == PieceType.King)
-            piece.moved = true;
-
-        isWhiteTurn = !isWhiteTurn;
-        enPassant = false;
-
-        currentPiece = null;
-
-        Tile.RemoveHighlights(ref validMoves);
-
-        CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
-        
-        currentPiece = null;
     }
 
     // Checkmate
-    private static void CheckForCheckmate(TeamColor team)
+    public static void CheckForCheckmate(TeamColor team)
     {
         // Getting the king we are checking
         Piece ourKing = null;
-        for (int i = 0; i < TILE_COUNT; i++)
-            for (int j = 0; j < TILE_COUNT; j++)
-                if (pieces[i, j] != null)
-                    if (pieces[i, j].type == PieceType.King && pieces[i, j].team == team)
-                        ourKing = pieces[i, j];
+        for (int i = 0; i < TileManager.TILE_COUNT; i++)
+            for (int j = 0; j < TileManager.TILE_COUNT; j++)
+                if (PieceManager.Instance.pieces[i, j] != null)
+                    if (PieceManager.Instance.pieces[i, j].type == PieceType.King && PieceManager.Instance.pieces[i, j].team == team)
+                        ourKing = PieceManager.Instance.pieces[i, j];
 
         // Is king in check?
         bool kingChecked = false;
-        for (int i = 0; i < TILE_COUNT; i++)
-            for (int j = 0; j < TILE_COUNT; j++)
-                if (pieces[i, j] != null && pieces[i, j].team != ourKing.team)
+        for (int i = 0; i < TileManager.TILE_COUNT; i++)
+            for (int j = 0; j < TileManager.TILE_COUNT; j++)
+                if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team != ourKing.team)
                 {
-                    List<Vector2Int> enemyMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT, lastMove);
-                    if (MouseInput.IsValidMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY)))
+                    List<Vector2Int> enemyMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, lastMove);
+                    if (GameInput.Instance.ContainsMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY)))
                     {
                         kingChecked = true;
                         break;
@@ -201,18 +68,19 @@ public class Chessboard : NetworkBehaviour
 
         // Do we have any moves left?
         int movesLeft = 0;
-        for (int i = 0; i < TILE_COUNT; i++)
-            for (int j = 0; j < TILE_COUNT; j++)
-                if (pieces[i, j] != null && pieces[i, j].team == ourKing.team)
+        for (int i = 0; i < TileManager.TILE_COUNT; i++)
+            for (int j = 0; j < TileManager.TILE_COUNT; j++)
+                if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team == ourKing.team)
                 {
-                    currentPiece = pieces[i, j];
-                    validMoves = pieces[i, j].GetValidMoves(ref pieces, TILE_COUNT, lastMove);
+                    PieceManager.Instance.currentPiece = PieceManager.Instance.pieces[i, j];
+                    validMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, lastMove);
                     PreventMove();
                     if (validMoves.Count > 0)
                         movesLeft++;
                 }
 
         validMoves.Clear();
+        PieceManager.Instance.currentPiece = null;
 
         if (movesLeft == 0)
         {
@@ -224,33 +92,38 @@ public class Chessboard : NetworkBehaviour
     }
     private static void Checkmate(TeamColor winningTeam)
     {
+        gameOverUIActive = true;
         victoryScreen.SetActive(true);
-        victoryScreen.transform.GetChild((int)winningTeam - 1).gameObject.SetActive(true);
+        if (winningTeam == TeamColor.White)
+            text.text = "White team wins!";
+        else
+            text.text = "Black team wins!";
     }
     private static void Stalemate()
     {
-        stalemateScreen.SetActive(true);
+        gameOverUIActive = true;
+        victoryScreen.SetActive(true);
+        text.text = "Draw!";
     }
     public void OnResetButton()
     {
         // UI
-        victoryScreen.transform.GetChild((int)TeamColor.White - 1).gameObject.SetActive(false);
-        victoryScreen.transform.GetChild((int)TeamColor.Black - 1).gameObject.SetActive(false);
+        gameOverUIActive = false;
         victoryScreen.SetActive(false);
 
         // Fields reset
-        currentPiece = null;
+        PieceManager.Instance.currentPiece = null;
         validMoves.Clear();
 
         // Clean up
-        for (int x = 0; x < TILE_COUNT; x++)
+        for (int x = 0; x < TileManager.TILE_COUNT; x++)
         {
-            for (int y = 0; y < TILE_COUNT; y++)
+            for (int y = 0; y < TileManager.TILE_COUNT; y++)
             {
-                if (pieces[x, y] != null)
-                    Destroy(pieces[x, y].gameObject);
+                if (PieceManager.Instance.pieces[x, y] != null)
+                    Destroy(PieceManager.Instance.pieces[x, y].gameObject);
 
-                pieces[x, y] = null;
+                PieceManager.Instance.pieces[x, y] = null;
             }
         }
 
@@ -262,8 +135,8 @@ public class Chessboard : NetworkBehaviour
         deadWhites.Clear();
         deadBlacks.Clear();
 
-        SpawnAllPieces();
-        PositionAllPieces();
+        PieceManager.Instance.SpawnAllPieces();
+        PieceManager.Instance.PositionAllPieces();
         isWhiteTurn = true;
     }
     public void OnExitButton()
@@ -272,28 +145,30 @@ public class Chessboard : NetworkBehaviour
     }
 
     // Promotion
-    private static void ActivatePromotionMenu()
+    public static void ActivatePromotionMenu()
     {
-        if (pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn)
+        if (PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn)
             if (lastMove.Item2.y == 7 || lastMove.Item2.y == 0)
             {
-                promotionMenuActive = true;
+                promotionUIActive = true;
                 promotionMenu.SetActive(true);
-                promotionMenu.transform.GetChild((int)pieces[lastMove.Item2.x, lastMove.Item2.y].team - 1).gameObject.SetActive(true);
+                promotionMenu.transform.GetChild((int)PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].team + 1).gameObject.SetActive(true);
             }
         promotionType = PieceType.None;
     }
     private static void ProcessPromotion()
     {
-        Destroy(pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
-        Piece newPiece = SpawnSinglePiece(promotionType, (lastMove.Item2.y == 7) ? TeamColor.White : TeamColor.Black);
-        pieces[lastMove.Item2.x, lastMove.Item2.y] = newPiece;
+        Destroy(PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
+        Piece newPiece = PieceManager.Instance.SpawnSinglePiece(promotionType, (lastMove.Item2.y == 7) ? TeamColor.White : TeamColor.Black);
+        PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y] = newPiece;
 
-        PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
-        promotionMenuActive = false;
-        promotionMenu.transform.GetChild((int)TeamColor.White - 1).gameObject.SetActive(false);
-        promotionMenu.transform.GetChild((int)TeamColor.Black - 1).gameObject.SetActive(false);
+        PieceManager.Instance.PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
+        promotionUIActive = false;
+        promotionMenu.transform.GetChild((int)TeamColor.White + 1).gameObject.SetActive(false);
+        promotionMenu.transform.GetChild((int)TeamColor.Black + 1).gameObject.SetActive(false);
         promotionMenu.SetActive(false);
+
+        CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
     }
     public void OnQueenButton()
     {
@@ -321,14 +196,14 @@ public class Chessboard : NetworkBehaviour
     {
         // Getting the king we are checking
         Piece ourKing = null;
-        for (int i = 0; i < TILE_COUNT; i++)
-            for (int j = 0; j < TILE_COUNT; j++)
-                if (pieces[i, j] != null)
-                    if (pieces[i, j].type == PieceType.King && pieces[i, j].team == currentPiece.team)
-                        ourKing = pieces[i, j];
+        for (int i = 0; i < TileManager.TILE_COUNT; i++)
+            for (int j = 0; j < TileManager.TILE_COUNT; j++)
+                if (PieceManager.Instance.pieces[i, j] != null)
+                    if (PieceManager.Instance.pieces[i, j].type == PieceType.King && PieceManager.Instance.pieces[i, j].team == PieceManager.Instance.currentPiece.team)
+                        ourKing = PieceManager.Instance.pieces[i, j];
             
-        int originalX = currentPiece.currentX;
-        int originalY = currentPiece.currentY;
+        int originalX = PieceManager.Instance.currentPiece.currentX;
+        int originalY = PieceManager.Instance.currentPiece.currentY;
 
         List<Vector2Int> movesToRemove = new();
 
@@ -338,11 +213,11 @@ public class Chessboard : NetworkBehaviour
             int x = validMoves[i].x;
             int y = validMoves[i].y;
 
-            if(SimulateMove(ourKing, currentPiece, x, y))
+            if(SimulateMove(ourKing, PieceManager.Instance.currentPiece, x, y))
                 movesToRemove.Add(new Vector2Int(x, y));
 
-            currentPiece.currentX = originalX;
-            currentPiece.currentY = originalY;
+            PieceManager.Instance.currentPiece.currentX = originalX;
+            PieceManager.Instance.currentPiece.currentY = originalY;
         }
 
         for (int i = 0; i < movesToRemove.Count; i++)
@@ -359,10 +234,10 @@ public class Chessboard : NetworkBehaviour
         }
 
         // Copying board
-        Piece[,] board = new Piece[TILE_COUNT, TILE_COUNT];
-        for (int i = 0; i < TILE_COUNT; i++)
-            for (int j = 0; j < TILE_COUNT; j++)
-                board[i, j] = pieces[i, j];
+        Piece[,] board = new Piece[TileManager.TILE_COUNT, TileManager.TILE_COUNT];
+        for (int i = 0; i < TileManager.TILE_COUNT; i++)
+            for (int j = 0; j < TileManager.TILE_COUNT; j++)
+                board[i, j] = PieceManager.Instance.pieces[i, j];
 
         // Making a move
         if (currentPiece.type == PieceType.Pawn && Mathf.Abs(currentPiece.currentX - x) == 1 && Mathf.Abs(currentPiece.currentY - y) == 1 && board[x, y] == null)
@@ -388,16 +263,16 @@ public class Chessboard : NetworkBehaviour
         enPassant = false;
 
         // Is king in check?
-        for(int i = 0; i < TILE_COUNT; i++)
-            for(int j = 0; j < TILE_COUNT; j++)
+        for(int i = 0; i < TileManager.TILE_COUNT; i++)
+            for(int j = 0; j < TileManager.TILE_COUNT; j++)
                 if (board[i, j] != null && board[i, j].team != ourKing.team)
                 {
-                    List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TILE_COUNT, lastSimulation);
-                    if (MouseInput.IsValidMove(ref enemyMoves, kingPos))
+                    List<Vector2Int> enemyMoves = board[i, j].GetValidMoves(ref board, TileManager.TILE_COUNT, lastSimulation);
+                    if (GameInput.Instance.ContainsMove(ref enemyMoves, kingPos))
                         return true;
 
-                    if (castling && (MouseInput.IsValidMove(ref enemyMoves, new(4, currentPiece.currentY)) ||
-                        MouseInput.IsValidMove(ref enemyMoves, new((currentPiece.currentX > 4) ? 5 : 3, currentPiece.currentY)))){
+                    if (castling && (GameInput.Instance.ContainsMove(ref enemyMoves, new(4, currentPiece.currentY)) ||
+                        GameInput.Instance.ContainsMove(ref enemyMoves, new((currentPiece.currentX > 4) ? 5 : 3, currentPiece.currentY)))){
                         return true;
                     }
 
