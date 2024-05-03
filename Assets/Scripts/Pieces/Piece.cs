@@ -28,7 +28,7 @@ public class Piece : MonoBehaviour
     public bool moved = false;
 
     private Vector3 desiredPosition;
-    private Vector3 desiredScale = Vector3.one * 1.2f;
+    private Vector3 desiredScale = Vector3.one;
 
     private void Start()
     {

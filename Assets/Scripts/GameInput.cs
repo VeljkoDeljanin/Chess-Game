@@ -22,7 +22,7 @@ public class GameInput : NetworkBehaviour
     private void Update()
     {
         if (IsMyTurn())
-            if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive && !Chessboard.testingNetcodeUIActive)
+            if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive)
             {
                 UpdateCamera();
                 UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, Chessboard.isWhiteTurn, TileManager.TILE_COUNT);
@@ -118,7 +118,7 @@ public class GameInput : NetworkBehaviour
     {
         if (currentPiece != null)
         {
-            Plane horizontalPlane = new(Vector3.up, Vector3.up * TileManager.Instance.yOffset);
+            Plane horizontalPlane = new(Vector3.up, Vector3.up * 0.1f);
             distance = 0.0f;
             if (horizontalPlane.Raycast(ray, out distance))
                 currentPiece.SetPosition(ray.GetPoint(distance) + Vector3.up * 0.2f);
@@ -135,6 +135,7 @@ public class GameInput : NetworkBehaviour
     }
     private bool IsMyTurn()
     {
-        return (IsServer && Chessboard.isWhiteTurn) || (!IsServer && !Chessboard.isWhiteTurn);
+        return true;
+        //return (IsServer && Chessboard.isWhiteTurn) || (!IsServer && !Chessboard.isWhiteTurn);
     }
 }

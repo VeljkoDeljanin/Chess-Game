@@ -59,7 +59,7 @@ public class PieceManager : NetworkBehaviour
 
         piece.type = type;
         piece.team = team;
-        piece.GetComponent<MeshRenderer>().material = teamMaterials[(int)team - 1];
+        piece.GetComponentInChildren<MeshRenderer>().material = teamMaterials[(int)team - 1];
 
         return piece;
     }
@@ -105,12 +105,12 @@ public class PieceManager : NetworkBehaviour
             target.SetScale(Vector3.one * Chessboard.deathScale);
             if (target.team == TeamColor.White)
             {
-                target.SetPosition(TileManager.Instance.GetTileCenter(8, -1) + Chessboard.deadWhites.Count * Chessboard.deathSpacing * Vector3.forward);
+                target.SetPosition(TileManager.Instance.GetTileCenter(9, -1) + Chessboard.deadWhites.Count * Chessboard.deathSpacing * Vector3.forward);
                 Chessboard.deadWhites.Add(target);
             }
             else
             {
-                target.SetPosition(TileManager.Instance.GetTileCenter(-1, 8) + Chessboard.deadBlacks.Count * Chessboard.deathSpacing * Vector3.back);
+                target.SetPosition(TileManager.Instance.GetTileCenter(-2, 8) + Chessboard.deadBlacks.Count * Chessboard.deathSpacing * Vector3.back);
                 Chessboard.deadBlacks.Add(target);
             }
         }

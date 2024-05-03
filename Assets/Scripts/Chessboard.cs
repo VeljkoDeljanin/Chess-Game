@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class Chessboard : MonoBehaviour
 {
@@ -26,10 +26,9 @@ public class Chessboard : MonoBehaviour
     public static Tuple<Vector2Int, Vector2Int> lastMove = new(new(0, 0), new(0, 0));
     public static Tuple<Vector2Int, Vector2Int> lastSimulation = new(new(0, 0), new(0, 0));
     public static bool enPassant = false;
-    public static PieceType promotionType = 0;
+    public static PieceType promotionType = PieceType.None;
     public static bool promotionUIActive = false;
     public static bool gameOverUIActive = false;
-    public static bool testingNetcodeUIActive = true;
 
     private void Awake() 
     {

@@ -76,7 +76,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 0ec80fc002254402fb9e142cd9ec683e,
         type: 3}
       propertyPath: m_Name
-      value: Chess_Board
+      value: ChessboardVisual
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0ec80fc002254402fb9e142cd9ec683e,
         type: 3}
@@ -86,40 +86,5 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec80fc002254402fb9e142cd9ec683e,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3608415868766096157}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ec80fc002254402fb9e142cd9ec683e, type: 3}
---- !u!1 &15247567443097524 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ec80fc002254402fb9e142cd9ec683e,
-    type: 3}
-  m_PrefabInstance: {fileID: 934288312178264805}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3608415868766096157
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 15247567443097524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d61840c7775b524893e0182a48bbd14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _victoryScreen: {fileID: 0}
-  _promotionMenu: {fileID: 0}
-  _stalemateScreen: {fileID: 0}
-  _prefabs:
-  - {fileID: 2287445492226610669, guid: 8266e90eb96ccea45bd19bf58d2a3dea, type: 3}
-  - {fileID: 3724110285753708094, guid: bd580e6279b29b24ab00403b7127e5cf, type: 3}
-  - {fileID: 277896966510427702, guid: 7289b7336a3f0694abd945c326603e6b, type: 3}
-  - {fileID: 4553189349622026223, guid: eb95ec2f55af8dd4e87d9774a363b4af, type: 3}
-  - {fileID: 612694820076844309, guid: aaf49a9d040acc54ea334b4cb7ea7412, type: 3}
-  - {fileID: 4036267035401372462, guid: 5bb33340ef27343469b70cf52957d1f0, type: 3}
-  _teamMaterials:
-  - {fileID: 2100000, guid: a3e9a6e1569d842a684694318c91552c, type: 2}
-  - {fileID: 2100000, guid: 7456a8e266d7b8a66878f5438d7298f1, type: 2}

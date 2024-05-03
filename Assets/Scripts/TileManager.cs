@@ -7,10 +7,11 @@ public class TileManager : MonoBehaviour
 
     public static TileManager Instance { get; private set; }
 
-    private Material tileMaterial;
-    private readonly float tileSize = 0.3f;
-    public float yOffset = 0.185f;
     public const int TILE_COUNT = 8;
+    private const float TILE_SIZE = 0.3f;
+
+    private Material tileMaterial;
+    public float yOffset = 0.185f;
 
     public GameObject[,] tiles;
     private Vector3 bounds;
@@ -25,7 +26,7 @@ public class TileManager : MonoBehaviour
     public void GenerateAllTiles(int tileCount, Transform transform)
     {
         yOffset += transform.position.y;
-        bounds = new Vector3((tileCount / 2) * tileSize, 0, (tileCount / 2) * tileSize);
+        bounds = new Vector3((tileCount / 2) * TILE_SIZE, 0, (tileCount / 2) * TILE_SIZE);
 
         tiles = new GameObject[tileCount, tileCount];
         for (int x = 0; x < tileCount; x++)
@@ -44,10 +45,10 @@ public class TileManager : MonoBehaviour
         tileObject.AddComponent<MeshRenderer>().material = tileMaterial;
 
         Vector3[] vertices = new Vector3[4];
-        vertices[0] = new Vector3(x * tileSize, yOffset, y * tileSize) - bounds;
-        vertices[1] = new Vector3(x * tileSize, yOffset, (y + 1) * tileSize) - bounds;
-        vertices[2] = new Vector3((x + 1) * tileSize, yOffset, y * tileSize) - bounds;
-        vertices[3] = new Vector3((x + 1) * tileSize, yOffset, (y + 1) * tileSize) - bounds;
+        vertices[0] = new Vector3(x * TILE_SIZE, yOffset, y * TILE_SIZE) - bounds;
+        vertices[1] = new Vector3(x * TILE_SIZE, yOffset, (y + 1) * TILE_SIZE) - bounds;
+        vertices[2] = new Vector3((x + 1) * TILE_SIZE, yOffset, y * TILE_SIZE) - bounds;
+        vertices[3] = new Vector3((x + 1) * TILE_SIZE, yOffset, (y + 1) * TILE_SIZE) - bounds;
 
         int[] tris = new int[] { 0, 1, 2, 1, 3, 2 };
 
@@ -89,6 +90,6 @@ public class TileManager : MonoBehaviour
     }
     public Vector3 GetTileCenter(int x, int y)
     {
-        return new Vector3(x * tileSize, yOffset, y * tileSize) - bounds + new Vector3(tileSize / 2, 0, tileSize / 2);
+        return new Vector3(x * TILE_SIZE, 0, y * TILE_SIZE) - bounds + new Vector3(TILE_SIZE / 2, 0, TILE_SIZE / 2);
     }
 }
