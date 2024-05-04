@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +18,6 @@ public class TeamColorSelectSingleUI : MonoBehaviour
     private void Start()
     {
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
-        image.material = GameMultiplayer.Instance.GetPlayerColor(colorId);
         UpdateIsSelected();
     }
 

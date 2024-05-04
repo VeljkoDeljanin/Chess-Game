@@ -100,20 +100,7 @@ public class GameMultiplayer : NetworkBehaviour
         return playerIndex < playerDataNetworkList.Count;
     }
 
-    public int GetPlayerDataIndexFromClientId(ulong clientId)
-    {
-        for (int i = 0; i < playerDataNetworkList.Count; i++)
-        {
-            if (playerDataNetworkList[i].clientId == clientId)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    public PlayerData GetPlayerDataFromClientId(ulong clientId)
+    private PlayerData GetPlayerDataFromClientId(ulong clientId)
     {
         foreach (PlayerData playerData in playerDataNetworkList)
         {
@@ -147,21 +134,36 @@ public class GameMultiplayer : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ChangePlayerColorServerRpc(int colorId, ServerRpcParams serverRpcParams = default)
+    private void ChangePlayerColorServerRpc(int colorId)
     {
-        if (!IsColorAvailable(colorId))
-        {
-            // Color not available
+        // Host color
+        PlayerData playerData = playerDataNetworkList[0];
+
+        if (playerData.colorId == colorId)
             return;
-        }
-
-        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
-
-        PlayerData playerData = playerDataNetworkList[playerDataIndex];
 
         playerData.colorId = colorId;
 
-        playerDataNetworkList[playerDataIndex] = playerData;
+        playerDataNetworkList[0] = playerData;
+
+        // Client color
+        if (playerDataNetworkList.Count == 1)
+            return;
+
+        PlayerData clientPlayerData = playerDataNetworkList[1];
+
+        clientPlayerData.colorId = GetFirstUnusedColorId();
+
+        playerDataNetworkList[1] = clientPlayerData;
+    }
+
+    private int GetFirstUnusedColorId()
+    {
+        for (int i = 0; i < playerColorList.Count; i++)
+            if (IsColorAvailable(i))
+                return i;
+
+        return -1;
     }
 
     private bool IsColorAvailable(int colorId)
@@ -176,15 +178,6 @@ public class GameMultiplayer : NetworkBehaviour
         }
 
         return true;
-    }
-
-    private int GetFirstUnusedColorId()
-    {
-        for (int i = 0; i < playerColorList.Count; i++)
-            if (IsColorAvailable(i))
-                return i;
-
-        return -1;
     }
 
     public void KickPlayer(ulong clientId)

@@ -16,7 +16,7 @@ public class Chessboard : MonoBehaviour
 
     // Logic
     public static List<Vector2Int> validMoves = new();
-    public static bool isWhiteTurn;
+    public static bool isWhiteTurn = true;
 
     public static List<Piece> deadWhites = new();
     public static List<Piece> deadBlacks = new();
@@ -29,15 +29,13 @@ public class Chessboard : MonoBehaviour
     public static PieceType promotionType = PieceType.None;
     public static bool promotionUIActive = false;
     public static bool gameOverUIActive = false;
+    public static bool opponentDisconnectUIActive = false;
 
     private void Awake() 
     {
         victoryScreen = _victoryScreen;
         promotionMenu = _promotionMenu;
         text = _text;
-        promotionUIActive = false;
-        gameOverUIActive = false;
-        isWhiteTurn = true;
     }
 
     // Checkmate

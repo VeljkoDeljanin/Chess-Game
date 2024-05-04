@@ -22,7 +22,7 @@ public class GameInput : NetworkBehaviour
     private void Update()
     {
         if (IsMyTurn())
-            if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive)
+            if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive && !Chessboard.opponentDisconnectUIActive)
             {
                 UpdateCamera();
                 UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, Chessboard.isWhiteTurn, TileManager.TILE_COUNT);
