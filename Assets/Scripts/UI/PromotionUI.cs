@@ -1,6 +1,5 @@
 using UnityEngine;
 
-public class PromotionUI : MonoBehaviour
-{
+public class PromotionUI : MonoBehaviour {
     
 }

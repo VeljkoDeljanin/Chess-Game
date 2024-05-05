@@ -5,8 +5,7 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyUI : MonoBehaviour
-{
+public class LobbyUI : MonoBehaviour {
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button createLobbyButton;
     [SerializeField] private Button quickJoinButton;
@@ -17,34 +16,27 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private Transform lobbyContainer;
     [SerializeField] private Transform lobbyTemplate;
 
-    private void Awake()
-    {
-        mainMenuButton.onClick.AddListener(() =>
-        {
+    private void Awake() {
+        mainMenuButton.onClick.AddListener(() => {
             NetworkManager.Singleton.Shutdown();
             Loader.Load(Loader.Scene.MainMenuScene);
         });
-        createLobbyButton.onClick.AddListener(() =>
-        {
+        createLobbyButton.onClick.AddListener(() => {
             lobbyCreateUI.Show();
         });
-        quickJoinButton.onClick.AddListener(() =>
-        {
+        quickJoinButton.onClick.AddListener(() => {
             GameLobby.Instance.QuickJoin();
         });
-        joinCodeButton.onClick.AddListener(() =>
-        {
+        joinCodeButton.onClick.AddListener(() => {
             GameLobby.Instance.JoinWithCode(joinCodeInputField.text);
         });
 
         lobbyTemplate.gameObject.SetActive(false);
     }
 
-    private void Start()
-    {
+    private void Start() {
         playerNameInputField.text = GameMultiplayer.Instance.GetPlayerName();
-        playerNameInputField.onValueChanged.AddListener((string newText) =>
-        {
+        playerNameInputField.onValueChanged.AddListener((string newText) => {
             GameMultiplayer.Instance.SetPlayerName(newText);
         });
 
@@ -52,21 +44,18 @@ public class LobbyUI : MonoBehaviour
         UpdateLobbyList(new List<Lobby>());
     }
 
-    private void GameLobby_OnLobbyListChanged(object sender, GameLobby.OnLobbyListChangedEventArgs e)
-    {
+    private void GameLobby_OnLobbyListChanged(object sender, GameLobby.OnLobbyListChangedEventArgs e) {
         UpdateLobbyList(e.lobbyList);
     }
 
-    private void UpdateLobbyList(List<Lobby> lobbyList)
-    {
-        foreach (Transform child in lobbyContainer)
-        {
+    private void UpdateLobbyList(List<Lobby> lobbyList) {
+        foreach (Transform child in lobbyContainer) {
             if (child == lobbyTemplate) continue;
+
             Destroy(child.gameObject);
         }
 
-        foreach (Lobby lobby in lobbyList)
-        {
+        foreach (Lobby lobby in lobbyList) {
             Transform lobbyTransform = Instantiate(lobbyTemplate, lobbyContainer);
             lobbyTransform.gameObject.SetActive(true);
             lobbyTransform.GetComponent<LobbyListSingleUI>().SetLobby(lobby);

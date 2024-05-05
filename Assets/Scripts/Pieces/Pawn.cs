@@ -2,23 +2,19 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pawn : Piece
-{
-    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount, Tuple<Vector2Int, Vector2Int> lastMove)
-    {
+public class Pawn : Piece {
+    public override List<Vector2Int> GetValidMoves(ref Piece[,] board, int tileCount, Tuple<Vector2Int, Vector2Int> lastMove) {
         List<Vector2Int> moves = new();
 
         int direction = team == TeamColor.White ? 1 : -1;
 
-        if (currentY + direction >= 0 && currentY + direction <= 7)
-        {
+        if (currentY + direction >= 0 && currentY + direction <= 7) {
             // One forward
             if (board[currentX, currentY + direction] == null)
                 moves.Add(new Vector2Int(currentX, currentY + direction));
 
             // Two forward
-            if (board[currentX, currentY + direction] == null)
-            {
+            if (board[currentX, currentY + direction] == null) {
                 if (team == TeamColor.White && currentY == 1 && board[currentX, currentY + 2 * direction] == null)
                     moves.Add(new Vector2Int(currentX, currentY + 2 * direction));
 

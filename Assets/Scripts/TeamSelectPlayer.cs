@@ -3,26 +3,22 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TeamSelectPlayer : MonoBehaviour
-{
+public class TeamSelectPlayer : MonoBehaviour {
     [SerializeField] private int playerIndex;
     [SerializeField] private GameObject readyGameObject;
     [SerializeField] private PlayerVisual[] playerVisuals;
     [SerializeField] private Button kickButton;
     [SerializeField] private TextMeshPro playerNameText;
 
-    private void Awake()
-    {
-        kickButton.onClick.AddListener(() =>
-        {
+    private void Awake() {
+        kickButton.onClick.AddListener(() => {
             PlayerData playerData = GameMultiplayer.Instance.GetPlayerDataFromPlayerIndex(playerIndex);
             GameLobby.Instance.KickPlayer(playerData.playerId.ToString());
             GameMultiplayer.Instance.KickPlayer(playerData.clientId);
         });
     }
 
-    private void Start()
-    {
+    private void Start() {
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
         TeamSelectReady.Instance.OnReadyChanged += TeamSelectReady_OnReadyChanged;
 
@@ -31,20 +27,16 @@ public class TeamSelectPlayer : MonoBehaviour
         UpdatePlayer();
     }
 
-    private void TeamSelectReady_OnReadyChanged(object sender, System.EventArgs e)
-    {
+    private void TeamSelectReady_OnReadyChanged(object sender, System.EventArgs e) {
         UpdatePlayer();
     }
 
-    private void GameMultiplayer_OnPlayerDataNetworkListChanged(object sender, System.EventArgs e)
-    {
+    private void GameMultiplayer_OnPlayerDataNetworkListChanged(object sender, System.EventArgs e) {
         UpdatePlayer();
     }
 
-    private void UpdatePlayer()
-    {
-        if (GameMultiplayer.Instance.IsPlayerIndexConnected(playerIndex))
-        {
+    private void UpdatePlayer() {
+        if (GameMultiplayer.Instance.IsPlayerIndexConnected(playerIndex)) {
             Show();
 
             PlayerData playerData = GameMultiplayer.Instance.GetPlayerDataFromPlayerIndex(playerIndex);
@@ -54,28 +46,22 @@ public class TeamSelectPlayer : MonoBehaviour
             playerNameText.text = playerData.playerName.ToString();
 
             foreach (var playerVisual in playerVisuals)
-            {
                 playerVisual.SetPlayerColor(GameMultiplayer.Instance.GetPlayerColor(playerData.colorId));
-            }
         }
-        else
-        {
+        else {
             Hide();
         }
     }
 
-    private void Show()
-    {
+    private void Show() {
         gameObject.SetActive(true);
     }
 
-    private void Hide()
-    {
+    private void Hide() {
         gameObject.SetActive(false);
     }
 
-    private void OnDestroy()
-    {
+    private void OnDestroy() {
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged -= GameMultiplayer_OnPlayerDataNetworkListChanged;
     }
 }

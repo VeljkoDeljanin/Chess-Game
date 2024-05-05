@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TileManager : MonoBehaviour
-{
+public class TileManager : MonoBehaviour {
     [SerializeField] private Transform chessboardTransform;
 
     public static TileManager Instance { get; private set; }
@@ -16,15 +15,13 @@ public class TileManager : MonoBehaviour
     public GameObject[,] tiles;
     private Vector3 bounds;
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
         GenerateAllTiles(TILE_COUNT, chessboardTransform);
     }
 
     // Generate tiles
-    public void GenerateAllTiles(int tileCount, Transform transform)
-    {
+    public void GenerateAllTiles(int tileCount, Transform transform) {
         yOffset += transform.position.y;
         bounds = new Vector3((tileCount / 2) * TILE_SIZE, 0, (tileCount / 2) * TILE_SIZE);
 
@@ -33,8 +30,8 @@ public class TileManager : MonoBehaviour
             for (int y = 0; y < tileCount; y++)
                 tiles[x, y] = GenerateSingleTile(x, y, transform);
     }
-    private GameObject GenerateSingleTile(int x, int y, Transform transform)
-    {
+
+    private GameObject GenerateSingleTile(int x, int y, Transform transform) {
         GameObject tileObject = new($"X: {x}, Y: {y}");
         tileObject.transform.parent = transform;
 
@@ -65,13 +62,12 @@ public class TileManager : MonoBehaviour
     }
 
     // Highlight Tiles
-    public void HighlightMoves(ref List<Vector2Int> validMoves)
-    {
+    public void HighlightMoves(ref List<Vector2Int> validMoves) {
         for (int i = 0; i < validMoves.Count; i++)
             tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Highlight");
     }
-    public void RemoveHighlights(ref List<Vector2Int> validMoves)
-    {
+
+    public void RemoveHighlights(ref List<Vector2Int> validMoves) {
         for (int i = 0; i < validMoves.Count; i++)
             tiles[validMoves[i].x, validMoves[i].y].layer = LayerMask.NameToLayer("Tile");
 
@@ -79,8 +75,7 @@ public class TileManager : MonoBehaviour
     }
 
     // Utility
-    public Vector2Int LookupTileIndex(GameObject hitInfo, int tileCount)
-    {
+    public Vector2Int LookupTileIndex(GameObject hitInfo, int tileCount) {
         for (int x = 0; x < tileCount; x++)
             for (int y = 0; y < tileCount; y++)
                 if (tiles[x, y] == hitInfo)
@@ -88,8 +83,8 @@ public class TileManager : MonoBehaviour
 
         return -Vector2Int.one;
     }
-    public Vector3 GetTileCenter(int x, int y)
-    {
+    
+    public Vector3 GetTileCenter(int x, int y) {
         return new Vector3(x * TILE_SIZE, 0, y * TILE_SIZE) - bounds + new Vector3(TILE_SIZE / 2, 0, TILE_SIZE / 2);
     }
 }
