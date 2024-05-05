@@ -913,10 +913,10 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: e61c2bdf-1c2b-4337-9ea3-0c6673780861
+  cloudProjectId: ac102dc7-0b45-4413-a171-aa918617e553
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Chess-Game-Test 2024-03-21_20-56-03
+  projectName: Chess Game Multiplayer
   organizationId: velja48
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

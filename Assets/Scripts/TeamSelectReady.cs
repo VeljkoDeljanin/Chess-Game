@@ -41,7 +41,10 @@ public class TeamSelectReady : NetworkBehaviour
         }
 
         if (allClientsReady)
+        {
+            GameLobby.Instance.DeleteLobby();
             Loader.LoadNetwork(Loader.Scene.GameScene);
+        }
     }
 
     [ClientRpc]
