@@ -51,7 +51,6 @@ public class LobbyUI : MonoBehaviour {
     private void UpdateLobbyList(List<Lobby> lobbyList) {
         foreach (Transform child in lobbyContainer) {
             if (child == lobbyTemplate) continue;
-
             Destroy(child.gameObject);
         }
 
@@ -60,5 +59,9 @@ public class LobbyUI : MonoBehaviour {
             lobbyTransform.gameObject.SetActive(true);
             lobbyTransform.GetComponent<LobbyListSingleUI>().SetLobby(lobby);
         }
+    }
+
+    private void OnDestroy() {
+        GameLobby.Instance.OnLobbyListChanged -= GameLobby_OnLobbyListChanged;
     }
 }
