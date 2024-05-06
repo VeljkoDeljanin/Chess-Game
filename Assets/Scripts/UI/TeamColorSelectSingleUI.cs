@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 public class TeamColorSelectSingleUI : MonoBehaviour {
     [SerializeField] private int colorId;
-    [SerializeField] private Image image;
     [SerializeField] private GameObject selectedGameObject;
 
     private void Awake() {

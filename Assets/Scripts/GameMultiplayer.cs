@@ -11,6 +11,8 @@ public class GameMultiplayer : NetworkBehaviour {
 
     public static GameMultiplayer Instance { get; private set; }
 
+    public static bool playMultiplayer;
+
     public event EventHandler OnTryingToJoinGame;
     public event EventHandler OnFailedToJoinGame;
     public event EventHandler OnPlayerDataNetworkListChanged;
@@ -19,6 +21,7 @@ public class GameMultiplayer : NetworkBehaviour {
 
     private NetworkList<PlayerData> playerDataNetworkList;
     private string playerName;
+    public TeamColor teamColor;
 
     private void Awake() {
         Instance = this;
@@ -29,6 +32,14 @@ public class GameMultiplayer : NetworkBehaviour {
         
         playerDataNetworkList = new NetworkList<PlayerData>();
         playerDataNetworkList.OnListChanged += PlayerDataNetworkList_OnListChanged;
+    }
+
+    private void Start() {
+        if (!playMultiplayer) {
+            // Singleplayer
+            StartHost();
+            Loader.LoadNetwork(Loader.Scene.GameScene);
+        }
     }
 
     public string GetPlayerName() {

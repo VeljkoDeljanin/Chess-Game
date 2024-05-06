@@ -19,12 +19,10 @@ public class GameInput : NetworkBehaviour {
     }
 
     private void Update() {
-        if (IsMyTurn()) {
-            if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive && !Chessboard.opponentDisconnectUIActive) {
-                UpdateCamera();
-                UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, Chessboard.isWhiteTurn, TileManager.TILE_COUNT);
-                UpdatePieceAnimation(ref PieceManager.Instance.currentPiece);
-            }
+        if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive && !Chessboard.opponentDisconnectUIActive) {
+            UpdateCamera();
+            UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, Chessboard.isWhiteTurn, TileManager.TILE_COUNT);
+            UpdatePieceAnimation(ref PieceManager.Instance.currentPiece);
         }
     }
 
@@ -69,8 +67,7 @@ public class GameInput : NetworkBehaviour {
                 // Selecting piece
                 else if (pieces[hitPosition.x, hitPosition.y] != null) {
                     // Is it our turn?
-                    if ((pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn) ||
-                        (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn)) {
+                    if (IsMyTurn(pieces, isWhiteTurn)) {
                         currentPiece = pieces[hitPosition.x, hitPosition.y];
 
                         // Get a list of valid moves
@@ -115,8 +112,12 @@ public class GameInput : NetworkBehaviour {
         return false;
     }
 
-    private bool IsMyTurn() {
-        return true;
-        //return (IsServer && Chessboard.isWhiteTurn) || (!IsServer && !Chessboard.isWhiteTurn);
+    private bool IsMyTurn(Piece[,] pieces, bool isWhiteTurn) {
+        if (GameMultiplayer.playMultiplayer)
+            return (pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 0) ||
+                   (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 1);
+        else
+            return (pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn) ||
+                   (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn);
     }
 }

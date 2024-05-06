@@ -82,7 +82,6 @@ public class GameLobby : MonoBehaviour {
         }
     }
 
-
     private bool IsLobbyHost() {
         return joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
     }
@@ -172,7 +171,7 @@ public class GameLobby : MonoBehaviour {
         try {
             joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
 
-            string relayJoinCode =  joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
+            string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
 
             JoinAllocation joinAllocation = await JoinRelay(relayJoinCode);
 

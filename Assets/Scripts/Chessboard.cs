@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Unity.Netcode;
 
 public class Chessboard : MonoBehaviour {
     [Header("Art Stuff")]
@@ -15,7 +16,7 @@ public class Chessboard : MonoBehaviour {
 
     // Logic
     public static List<Vector2Int> validMoves = new List<Vector2Int>();
-    public static bool isWhiteTurn = true;
+    public static bool isWhiteTurn;
 
     public static List<Piece> deadWhites = new List<Piece>();
     public static List<Piece> deadBlacks = new List<Piece>();
@@ -24,16 +25,22 @@ public class Chessboard : MonoBehaviour {
 
     public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
     public static Tuple<Vector2Int, Vector2Int> lastSimulation = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
-    public static bool enPassant = false;
-    public static PieceType promotionType = PieceType.None;
-    public static bool promotionUIActive = false;
-    public static bool gameOverUIActive = false;
-    public static bool opponentDisconnectUIActive = false;
-
+    public static bool enPassant;
+    public static PieceType promotionType;
+    public static bool promotionUIActive;
+    public static bool gameOverUIActive;
+    public static bool opponentDisconnectUIActive;
+    
     private void Awake()  {
         victoryScreen = _victoryScreen;
         promotionMenu = _promotionMenu;
         text = _text;
+        isWhiteTurn = true;
+        enPassant = false;
+        promotionType = PieceType.None;
+        promotionUIActive = false;
+        gameOverUIActive = false;
+        opponentDisconnectUIActive = false;
     }
 
     // Checkmate
@@ -130,9 +137,6 @@ public class Chessboard : MonoBehaviour {
         PieceManager.Instance.SpawnAllPieces();
         PieceManager.Instance.PositionAllPieces();
         isWhiteTurn = true;
-    }
-    public void OnExitButton() {
-        Application.Quit();
     }
 
     // Promotion
