@@ -3,11 +3,11 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class PieceManager : NetworkBehaviour {
+    public static PieceManager Instance { get; private set; }
+
     [SerializeField] private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
     [SerializeField] private Transform chessboardTransform;
-
-    public static PieceManager Instance { get; private set; }
 
     public Piece[,] pieces;
     public Piece currentPiece;
@@ -76,8 +76,12 @@ public class PieceManager : NetworkBehaviour {
     }
 
     // Move piece synchronization
+    public void MovePiece(Vector2Int oldPosition, Vector2Int newPosition) {
+        MovePieceServerRpc(oldPosition, newPosition);
+    }
+
     [ServerRpc(RequireOwnership = false)]
-    public void MovePieceServerRpc(Vector2Int oldPosition, Vector2Int newPosition) {
+    private void MovePieceServerRpc(Vector2Int oldPosition, Vector2Int newPosition) {
         MovePieceClientRpc(oldPosition, newPosition);
     }
 
@@ -124,7 +128,8 @@ public class PieceManager : NetworkBehaviour {
 
         PositionSinglePiece(x, y);
 
-        Chessboard.ActivatePromotionMenu();
+        TeamPromotion.Instance.CheckForPromotion();
+        //Chessboard.ActivatePromotionMenu();
 
         if (piece.type == PieceType.Rook || piece.type == PieceType.King)
             piece.moved = true;

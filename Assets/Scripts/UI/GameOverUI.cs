@@ -10,7 +10,7 @@ public class GameOverUI : MonoBehaviour {
 
     private void Awake() {
         rematchButton.onClick.AddListener(() => {
-            GameRematch.Instance.SetPlayerWantsRematch();
+            GameOverRematch.Instance.SetPlayerWantsRematch();
         });
         mainMenuButton.onClick.AddListener(() => {
             NetworkManager.Singleton.Shutdown();
@@ -20,6 +20,7 @@ public class GameOverUI : MonoBehaviour {
 
     private void Start() {
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        GameOverRematch.Instance.OnRematchChanged += GameRematch_OnRematchChanged;
 
         Hide();
     }
@@ -30,6 +31,13 @@ public class GameOverUI : MonoBehaviour {
             rematchButton.interactable = false;
             messageText.text = "Opponent has left!";
             messageText.color = Color.red;
+        }
+    }
+
+    private void GameRematch_OnRematchChanged(object sender, GameOverRematch.OnRematchChangedEventArgs e) {
+        if (!GameOverRematch.Instance.PlayerWantsRematch(NetworkManager.Singleton.LocalClientId)) {
+            messageText.text = "Opponent wants a rematch!";
+            messageText.color = Color.green;
         }
     }
 

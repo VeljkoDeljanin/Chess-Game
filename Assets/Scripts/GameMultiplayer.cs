@@ -19,9 +19,8 @@ public class GameMultiplayer : NetworkBehaviour {
 
     [SerializeField] private List<Material> playerColorList;
 
-    private NetworkList<PlayerData> playerDataNetworkList;
+    public NetworkList<PlayerData> playerDataNetworkList;
     private string playerName;
-    public TeamColor teamColor;
 
     private void Awake() {
         Instance = this;

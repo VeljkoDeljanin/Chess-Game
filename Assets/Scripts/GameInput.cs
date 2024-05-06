@@ -57,7 +57,7 @@ public class GameInput : NetworkBehaviour {
                 // Releasing piece
                 if (currentPiece != null) {
                     if (ContainsMove(ref validMoves, new Vector2Int(hitPosition.x, hitPosition.y))) {
-                        PieceManager.Instance.MovePieceServerRpc(new Vector2Int(currentPiece.currentX, currentPiece.currentY), new Vector2Int(hitPosition.x, hitPosition.y));
+                        PieceManager.Instance.MovePiece(new Vector2Int(currentPiece.currentX, currentPiece.currentY), new Vector2Int(hitPosition.x, hitPosition.y));
                     } else {
                         currentPiece.SetPosition(TileManager.Instance.GetTileCenter(currentPiece.currentX, currentPiece.currentY));
                         currentPiece = null;
@@ -113,11 +113,12 @@ public class GameInput : NetworkBehaviour {
     }
 
     private bool IsMyTurn(Piece[,] pieces, bool isWhiteTurn) {
-        if (GameMultiplayer.playMultiplayer)
+        if (GameMultiplayer.playMultiplayer && GameMultiplayer.Instance.playerDataNetworkList.Count == 2) {
             return (pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 0) ||
                    (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 1);
-        else
+        } else {
             return (pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn) ||
                    (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn);
+        }
     }
 }

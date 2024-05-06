@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class GameRematch : NetworkBehaviour {
-    public static GameRematch Instance { get; private set; }
+public class GameOverRematch : NetworkBehaviour {
+    public static GameOverRematch Instance { get; private set; }
 
-    public event EventHandler OnRematchChanged;
+    public event EventHandler<OnRematchChangedEventArgs> OnRematchChanged;
+    public class OnRematchChangedEventArgs : EventArgs {
+        public ulong clientId;
+    }
 
     private Dictionary<ulong, bool> playerRematchDictionary;
 
@@ -43,7 +46,7 @@ public class GameRematch : NetworkBehaviour {
     private void SetPlayerWantsRematchClientRpc(ulong clientId) {
         playerRematchDictionary[clientId] = true;
 
-        OnRematchChanged?.Invoke(this, EventArgs.Empty);
+        OnRematchChanged?.Invoke(this, new OnRematchChangedEventArgs { clientId = clientId });
     }
 
     public bool PlayerWantsRematch(ulong clientId) {

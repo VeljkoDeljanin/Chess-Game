@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Unity.Netcode;
 
 public class Chessboard : MonoBehaviour {
     [Header("Art Stuff")]
@@ -30,7 +29,7 @@ public class Chessboard : MonoBehaviour {
     public static bool promotionUIActive;
     public static bool gameOverUIActive;
     public static bool opponentDisconnectUIActive;
-    
+
     private void Awake()  {
         victoryScreen = _victoryScreen;
         promotionMenu = _promotionMenu;
@@ -105,38 +104,6 @@ public class Chessboard : MonoBehaviour {
         gameOverUIActive = true;
         victoryScreen.SetActive(true);
         text.text = "Draw!";
-    }
-    public void OnResetButton() {
-        // UI
-        gameOverUIActive = false;
-        victoryScreen.SetActive(false);
-
-        // Fields reset
-        PieceManager.Instance.currentPiece = null;
-        validMoves.Clear();
-
-        // Clean up
-        for (int x = 0; x < TileManager.TILE_COUNT; x++) {
-            for (int y = 0; y < TileManager.TILE_COUNT; y++) {
-                if (PieceManager.Instance.pieces[x, y] != null)
-                    Destroy(PieceManager.Instance.pieces[x, y].gameObject);
-
-                PieceManager.Instance.pieces[x, y] = null;
-            }
-        }
-
-        for (int i = 0; i < deadWhites.Count; i++)
-            Destroy(deadWhites[i].gameObject);
-
-        for (int i = 0; i < deadBlacks.Count; i++)
-            Destroy(deadBlacks[i].gameObject);
-
-        deadWhites.Clear();
-        deadBlacks.Clear();
-
-        PieceManager.Instance.SpawnAllPieces();
-        PieceManager.Instance.PositionAllPieces();
-        isWhiteTurn = true;
     }
 
     // Promotion
