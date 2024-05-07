@@ -26,5 +26,16 @@ public class TeamSelectUI : MonoBehaviour {
 
         lobbyNameText.text = "Lobby Name: " + lobby.Name;
         lobbyCodeText.text = "Lobby Code: " + lobby.LobbyCode;
+
+        GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
+
+        readyButton.interactable = false;
+    }
+
+    private void GameMultiplayer_OnPlayerDataNetworkListChanged(object sender, System.EventArgs e) {
+        if (GameMultiplayer.Instance.playerDataNetworkList.Count == 2)
+            readyButton.interactable = true;
+        else
+            readyButton.interactable = false;
     }
 }

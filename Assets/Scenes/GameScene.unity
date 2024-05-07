@@ -170,6 +170,7 @@ MonoBehaviour:
   teamCameras:
   - {fileID: 1792738840}
   - {fileID: 1145846772}
+  gameOverUIActive: 0
 --- !u!1 &37650649
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,8 +505,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 2.5, z: -1.5}
+  m_LocalRotation: {x: 0, y: 0.8660254, z: -0.5, w: 0}
+  m_LocalPosition: {x: 0, y: 2.5, z: 1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2919,6 +2920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2affe612dcf1d594992952edea82cda8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPromotionUIActive: 0
 --- !u!114 &1244216976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4290,6 +4292,7 @@ MonoBehaviour:
   rematchButton: {fileID: 1058843476}
   mainMenuButton: {fileID: 734516537}
   messageText: {fileID: 1744490545}
+  resultText: {fileID: 497017575}
 --- !u!1 &2022592385
 GameObject:
   m_ObjectHideFlags: 0

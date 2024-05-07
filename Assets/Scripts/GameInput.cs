@@ -19,9 +19,9 @@ public class GameInput : NetworkBehaviour {
     }
 
     private void Update() {
-        if (!Chessboard.promotionUIActive && !Chessboard.gameOverUIActive && !Chessboard.opponentDisconnectUIActive) {
+        if (!TeamPromotion.Instance.isPromotionUIActive && !GameManager.Instance.gameOverUIActive && !Chessboard.opponentDisconnectUIActive) {
             UpdateCamera();
-            UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, Chessboard.isWhiteTurn, TileManager.TILE_COUNT);
+            UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, GameManager.Instance.isWhiteTurn, TileManager.TILE_COUNT);
             UpdatePieceAnimation(ref PieceManager.Instance.currentPiece);
         }
     }

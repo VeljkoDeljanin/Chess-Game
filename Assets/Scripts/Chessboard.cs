@@ -1,150 +1,19 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class Chessboard : MonoBehaviour {
-    [Header("Art Stuff")]
-    [SerializeField] private GameObject _victoryScreen;
-    [SerializeField] private GameObject _promotionMenu;
-    [SerializeField] private TextMeshProUGUI _text;
-
-    private static GameObject victoryScreen;
-    private static GameObject promotionMenu;
-    private static TextMeshProUGUI text;
-
     // Logic
     public static List<Vector2Int> validMoves = new List<Vector2Int>();
-    public static bool isWhiteTurn;
-
-    public static List<Piece> deadWhites = new List<Piece>();
-    public static List<Piece> deadBlacks = new List<Piece>();
-    public static float deathScale = 0.6f;
-    public static float deathSpacing = 0.15f;
 
     public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
     public static Tuple<Vector2Int, Vector2Int> lastSimulation = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
     public static bool enPassant;
-    public static PieceType promotionType;
-    public static bool promotionUIActive;
-    public static bool gameOverUIActive;
     public static bool opponentDisconnectUIActive;
 
     private void Awake()  {
-        victoryScreen = _victoryScreen;
-        promotionMenu = _promotionMenu;
-        text = _text;
-        isWhiteTurn = true;
         enPassant = false;
-        promotionType = PieceType.None;
-        promotionUIActive = false;
-        gameOverUIActive = false;
         opponentDisconnectUIActive = false;
-    }
-
-    // Checkmate
-    public static void CheckForCheckmate(TeamColor team) {
-        // Getting the king we are checking
-        Piece ourKing = null;
-        for (int i = 0; i < TileManager.TILE_COUNT; i++)
-            for (int j = 0; j < TileManager.TILE_COUNT; j++)
-                if (PieceManager.Instance.pieces[i, j] != null)
-                    if (PieceManager.Instance.pieces[i, j].type == PieceType.King && PieceManager.Instance.pieces[i, j].team == team)
-                        ourKing = PieceManager.Instance.pieces[i, j];
-
-        // Is king in check?
-        bool kingChecked = false;
-        for (int i = 0; i < TileManager.TILE_COUNT; i++) {
-            for (int j = 0; j < TileManager.TILE_COUNT; j++) {
-                if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team != ourKing.team) {
-                    List<Vector2Int> enemyMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, lastMove);
-                    
-                    if (GameInput.Instance.ContainsMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY))) {
-                        kingChecked = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Do we have any moves left?
-        int movesLeft = 0;
-        for (int i = 0; i < TileManager.TILE_COUNT; i++) {
-            for (int j = 0; j < TileManager.TILE_COUNT; j++) {
-                if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team == ourKing.team) {
-                    PieceManager.Instance.currentPiece = PieceManager.Instance.pieces[i, j];
-                    validMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, lastMove);
-                    PreventMove();
-                    if (validMoves.Count > 0)
-                        movesLeft++;
-                }
-            }
-        }
-
-        validMoves.Clear();
-        PieceManager.Instance.currentPiece = null;
-
-        if (movesLeft == 0) {
-            if (kingChecked)
-                Checkmate(team == TeamColor.White ? TeamColor.Black : TeamColor.White);
-            else
-                Stalemate();
-        }
-    }
-    private static void Checkmate(TeamColor winningTeam) {
-        gameOverUIActive = true;
-        victoryScreen.SetActive(true);
-
-        if (winningTeam == TeamColor.White)
-            text.text = "White team wins!";
-        else
-            text.text = "Black team wins!";
-    }
-    private static void Stalemate() {
-        gameOverUIActive = true;
-        victoryScreen.SetActive(true);
-        text.text = "Draw!";
-    }
-
-    // Promotion
-    public static void ActivatePromotionMenu() {
-        if (PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn) {
-            if (lastMove.Item2.y == 7 || lastMove.Item2.y == 0) {
-                promotionUIActive = true;
-                promotionMenu.SetActive(true);
-                promotionMenu.transform.GetChild((int)PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].team + 1).gameObject.SetActive(true);
-            }
-        }
-        promotionType = PieceType.None;
-    }
-    private static void ProcessPromotion() {
-        Destroy(PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
-        Piece newPiece = PieceManager.Instance.SpawnSinglePiece(promotionType, (lastMove.Item2.y == 7) ? TeamColor.White : TeamColor.Black);
-        PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y] = newPiece;
-
-        PieceManager.Instance.PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
-        promotionUIActive = false;
-        promotionMenu.transform.GetChild((int)TeamColor.White + 1).gameObject.SetActive(false);
-        promotionMenu.transform.GetChild((int)TeamColor.Black + 1).gameObject.SetActive(false);
-        promotionMenu.SetActive(false);
-
-        CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
-    }
-    public void OnQueenButton() {
-        promotionType = PieceType.Queen;
-        ProcessPromotion();
-    }
-    public void OnRookButton() {
-        promotionType = PieceType.Rook;
-        ProcessPromotion();
-    }
-    public void OnBishopButton() {
-        promotionType = PieceType.Bishop;
-        ProcessPromotion();
-    }
-    public void OnKnightButton() {
-        promotionType = PieceType.Knight;
-        ProcessPromotion();
     }
 
     // Prevent check

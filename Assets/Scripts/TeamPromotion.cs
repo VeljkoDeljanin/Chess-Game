@@ -10,8 +10,12 @@ public class TeamPromotion : NetworkBehaviour {
         public int colorId;
     }
 
+    public bool isPromotionUIActive;
+
     private void Awake() {
         Instance = this;
+
+        isPromotionUIActive = false;
     }
 
     public void CheckForPromotion() {
@@ -27,18 +31,18 @@ public class TeamPromotion : NetworkBehaviour {
         }
     }
 
-    public void SetPromotionUIActive(bool promotionUIActive) {
-        SetPromotionUIActiveServerRpc(promotionUIActive);
+    public void SetPromotionUIActive(bool isPromotionUIActive) {
+        SetPromotionUIActiveServerRpc(isPromotionUIActive);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetPromotionUIActiveServerRpc(bool promotionUIActive) {
-        SetPromotionUIActiveClientRpc(promotionUIActive);
+    public void SetPromotionUIActiveServerRpc(bool isPromotionUIActive) {
+        SetPromotionUIActiveClientRpc(isPromotionUIActive);
     }
 
     [ClientRpc]
-    public void SetPromotionUIActiveClientRpc(bool promotionUIActive) {
-        Chessboard.promotionUIActive = promotionUIActive;
+    public void SetPromotionUIActiveClientRpc(bool isPromotionUIActive) {
+        this.isPromotionUIActive = isPromotionUIActive;
     }
 
     public void ProcessPromotion(PieceType promotionType) {
@@ -59,6 +63,6 @@ public class TeamPromotion : NetworkBehaviour {
 
         PieceManager.Instance.PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
 
-        Chessboard.CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
+        GameManager.Instance.CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
     }
 }

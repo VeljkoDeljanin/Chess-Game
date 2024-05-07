@@ -1,8 +1,13 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PieceManager : NetworkBehaviour {
+
+    private const float DEATH_SCALE = 0.6f;
+    private const float DEATH_SPACING = 0.15f;
+
     public static PieceManager Instance { get; private set; }
 
     [SerializeField] private GameObject[] prefabs;
@@ -11,6 +16,8 @@ public class PieceManager : NetworkBehaviour {
 
     public Piece[,] pieces;
     public Piece currentPiece;
+    private List<Piece> deadWhites = new List<Piece>();
+    private List<Piece> deadBlacks = new List<Piece>();
 
     private void Awake() {
         Instance = this;
@@ -101,13 +108,13 @@ public class PieceManager : NetworkBehaviour {
         if (pieces[x, y2] != null) {
             Piece target = pieces[x, y2];
 
-            target.SetScale(Vector3.one * Chessboard.deathScale);
+            target.SetScale(Vector3.one * DEATH_SCALE);
             if (target.team == TeamColor.White) {
-                target.SetPosition(TileManager.Instance.GetTileCenter(9, -1) + Chessboard.deadWhites.Count * Chessboard.deathSpacing * Vector3.forward);
-                Chessboard.deadWhites.Add(target);
+                target.SetPosition(TileManager.Instance.GetTileCenter(9, -1) + deadWhites.Count * DEATH_SPACING * Vector3.forward);
+                deadWhites.Add(target);
             } else {
-                target.SetPosition(TileManager.Instance.GetTileCenter(-2, 8) + Chessboard.deadBlacks.Count * Chessboard.deathSpacing * Vector3.back);
-                Chessboard.deadBlacks.Add(target);
+                target.SetPosition(TileManager.Instance.GetTileCenter(-2, 8) + deadBlacks.Count * DEATH_SPACING * Vector3.back);
+                deadBlacks.Add(target);
             }
         }
 
@@ -129,19 +136,18 @@ public class PieceManager : NetworkBehaviour {
         PositionSinglePiece(x, y);
 
         TeamPromotion.Instance.CheckForPromotion();
-        //Chessboard.ActivatePromotionMenu();
 
         if (piece.type == PieceType.Rook || piece.type == PieceType.King)
             piece.moved = true;
 
-        Chessboard.isWhiteTurn = !Chessboard.isWhiteTurn;
+        GameManager.Instance.isWhiteTurn = !GameManager.Instance.isWhiteTurn;
         Chessboard.enPassant = false;
 
         currentPiece = null;
 
         TileManager.Instance.RemoveHighlights(ref Chessboard.validMoves);
 
-        Chessboard.CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+        GameManager.Instance.CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
 
         currentPiece = null;
     }

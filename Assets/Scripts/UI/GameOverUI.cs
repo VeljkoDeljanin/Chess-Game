@@ -7,6 +7,7 @@ public class GameOverUI : MonoBehaviour {
     [SerializeField] private Button rematchButton;
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private TextMeshProUGUI resultText;
 
     private void Awake() {
         rematchButton.onClick.AddListener(() => {
@@ -21,13 +22,13 @@ public class GameOverUI : MonoBehaviour {
     private void Start() {
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         GameOverRematch.Instance.OnRematchChanged += GameRematch_OnRematchChanged;
+        GameManager.Instance.OnGameOver += GameManager_OnGameOver;
 
         Hide();
     }
 
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId) {
-        if (Chessboard.gameOverUIActive) {
-            Show();
+        if (GameManager.Instance.gameOverUIActive) {
             rematchButton.interactable = false;
             messageText.text = "Opponent has left!";
             messageText.color = Color.red;
@@ -41,8 +42,13 @@ public class GameOverUI : MonoBehaviour {
         }
     }
 
-    private void Show() {
+    private void GameManager_OnGameOver(object sender, GameManager.OnGameOverEventArgs e) {
+        Show(e.resultText);
+    }
+
+    private void Show(string resultText) {
         gameObject.SetActive(true);
+        this.resultText.text = resultText;
     }
 
     private void Hide() {

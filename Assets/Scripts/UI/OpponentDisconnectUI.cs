@@ -19,7 +19,7 @@ public class OpponentDisconnectUI : MonoBehaviour {
     }
 
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId) {
-        if (!Chessboard.gameOverUIActive)
+        if (!GameManager.Instance.gameOverUIActive)
             Show();
     }
 
