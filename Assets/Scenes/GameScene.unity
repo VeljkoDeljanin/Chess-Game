@@ -390,7 +390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 168840910}
   - component: {fileID: 168840912}
-  - component: {fileID: 168840911}
+  - component: {fileID: 168840913}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -413,28 +413,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &168840911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 168840909}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1c20ecd7131aed4c84910d0c1b9c7ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameStart: {fileID: 8300000, guid: eda2cfc7b1ee27a47b8031cbc7c6f907, type: 3}
-  gameEnd: {fileID: 8300000, guid: fa14b3165b1284c498e242c819369086, type: 3}
-  moveSelf: {fileID: 8300000, guid: 249f0624d2280f949af346ff81e727ad, type: 3}
-  moveOpponent: {fileID: 8300000, guid: 98bfb4032bc0dda498598d5ab63d1dff, type: 3}
-  capture: {fileID: 8300000, guid: e130369080acf2c44a34861cdec0c0d4, type: 3}
-  castle: {fileID: 8300000, guid: f0709d6f159574b4cbcd4aa5a4ef810b, type: 3}
-  moveCheck: {fileID: 8300000, guid: f0f9933f83a771344a70e4e847033b1f, type: 3}
-  tenSeconds: {fileID: 8300000, guid: c69e9fa2c8683c449bc461269c8612fc, type: 3}
-  countdown: {fileID: 8300000, guid: 2a7141958bfb25847857cf80587174e6, type: 3}
-  promote: {fileID: 8300000, guid: 28104a0bef77d234c99d71a58f14c03d, type: 3}
 --- !u!114 &168840912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -456,6 +434,28 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &168840913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 168840909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1c20ecd7131aed4c84910d0c1b9c7ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameStart: {fileID: 8300000, guid: eda2cfc7b1ee27a47b8031cbc7c6f907, type: 3}
+  gameEnd: {fileID: 8300000, guid: fa14b3165b1284c498e242c819369086, type: 3}
+  moveSelf: {fileID: 8300000, guid: 249f0624d2280f949af346ff81e727ad, type: 3}
+  moveOpponent: {fileID: 8300000, guid: 98bfb4032bc0dda498598d5ab63d1dff, type: 3}
+  capture: {fileID: 8300000, guid: e130369080acf2c44a34861cdec0c0d4, type: 3}
+  castle: {fileID: 8300000, guid: f0709d6f159574b4cbcd4aa5a4ef810b, type: 3}
+  moveCheck: {fileID: 8300000, guid: f0f9933f83a771344a70e4e847033b1f, type: 3}
+  tenSeconds: {fileID: 8300000, guid: c69e9fa2c8683c449bc461269c8612fc, type: 3}
+  countdown: {fileID: 8300000, guid: 2a7141958bfb25847857cf80587174e6, type: 3}
+  promote: {fileID: 8300000, guid: 28104a0bef77d234c99d71a58f14c03d, type: 3}
 --- !u!1 &182074900
 GameObject:
   m_ObjectHideFlags: 0
