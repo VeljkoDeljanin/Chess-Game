@@ -91,8 +91,6 @@ public class GameManager : NetworkBehaviour {
             case State.GameOver:
                 break;
         }
-
-        Debug.Log(state.Value);
     }
 
     public override void OnNetworkSpawn() {
@@ -146,7 +144,12 @@ public class GameManager : NetworkBehaviour {
         state.Value = State.GamePlaying;
     }
 
-    private void ProcessGameOver(TeamColor winningTeam) {
+    public void SetGameDraw() {
+        resultText.Value = "Draw!";
+        state.Value = State.GameOver;
+    }
+
+    public void ProcessGameOver(TeamColor winningTeam) {
         ProcessGameOverServerRpc(winningTeam);
     }
 
