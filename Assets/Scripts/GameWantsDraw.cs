@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEngine;
 
 public class GameWantsDraw : NetworkBehaviour {
 
@@ -47,11 +45,9 @@ public class GameWantsDraw : NetworkBehaviour {
 
     [ClientRpc]
     private void SetPlayerWantsDrawClientRpc(ulong clientId) {
-
         playerWantsDrawDictionary[clientId] = true;
 
         OnWantsDrawChanged?.Invoke(this, new OnWantsDrawChangedEventArgs { clientId = clientId });
-
     }
 
     public bool PlayerWantsDraw(ulong clientId) {

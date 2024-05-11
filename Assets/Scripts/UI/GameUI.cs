@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameUI : MonoBehaviour{
+public class GameUI : MonoBehaviour {
 
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private GameObject resignButton;
     [SerializeField] private GameObject drawButton;
     [SerializeField] private GameObject drawText;
 
-    private void Awake(){
-
+    private void Awake() {
         resignButton.GetComponent<Button>().onClick.AddListener(() => {
             GameManager.Instance.ProcessGameOver(GameMultiplayer.Instance.GetPlayerData().colorId == 0 ? TeamColor.Black : TeamColor.White);
         });
@@ -23,11 +20,9 @@ public class GameUI : MonoBehaviour{
         drawButton.GetComponent<Button>().onClick.AddListener(() => {
             GameWantsDraw.Instance.SetPlayerWantsDraw();
         });
-
     }
 
     private void Start() {
-
         GameWantsDraw.Instance.OnWantsDrawChanged += GameWantsDraw_OnWantsDrawChanged;
 
         if (!GameMultiplayer.playMultiplayer) {
