@@ -19,8 +19,9 @@ public class LobbyKickUI : MonoBehaviour {
     }
 
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId) {
-        if (!NetworkManager.Singleton.IsServer)
+        if (!NetworkManager.Singleton.IsServer) {
             Show();
+        }
     }
 
     private void Show() {

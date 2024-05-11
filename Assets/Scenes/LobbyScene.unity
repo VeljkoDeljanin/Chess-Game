@@ -1138,9 +1138,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 905549767}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 30, y: -30}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -30, y: -30}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &279524636
@@ -2241,6 +2241,7 @@ MonoBehaviour:
   playerColorList:
   - {fileID: 2100000, guid: a3e9a6e1569d842a684694318c91552c, type: 2}
   - {fileID: 2100000, guid: 7456a8e266d7b8a66878f5438d7298f1, type: 2}
+  gamePlayingTimerList: 000000003c0000002c01000058020000
 --- !u!114 &969766556
 MonoBehaviour:
   m_ObjectHideFlags: 0

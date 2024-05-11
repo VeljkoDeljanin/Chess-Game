@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Netcode;
 
 public struct PlayerData : IEquatable<PlayerData>, INetworkSerializable {
+
     public ulong clientId;
     public int colorId;
     public FixedString64Bytes playerName;

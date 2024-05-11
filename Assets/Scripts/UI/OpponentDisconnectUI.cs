@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class OpponentDisconnectUI : MonoBehaviour {
+
     [SerializeField] private Button mainMenuButton;
     
     private void Awake() {
@@ -13,27 +14,22 @@ public class OpponentDisconnectUI : MonoBehaviour {
     }
 
     private void Start() {
-        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        GameManager.Instance.OnOpponentDisconnect += GameManager_OnOpponentDisconnect;
 
         Hide();
     }
 
-    private void NetworkManager_OnClientDisconnectCallback(ulong clientId) {
-        if (!GameManager.Instance.gameOverUIActive)
+    private void GameManager_OnOpponentDisconnect(object sender, System.EventArgs e) {
+        if (!GameManager.Instance.IsGameOverActive()) {
             Show();
+        }
     }
 
     private void Show() {
-        Chessboard.opponentDisconnectUIActive = true;
         gameObject.SetActive(true);
     }
 
     private void Hide() {
-        Chessboard.opponentDisconnectUIActive = false;
         gameObject.SetActive(false);
-    }
-
-    private void OnDestroy() {
-        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
     }
 }

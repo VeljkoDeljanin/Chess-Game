@@ -14,7 +14,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameLobby : MonoBehaviour {
+
     private const string KEY_RELAY_JOIN_CODE = "RelayJoinCode";
+
     public static GameLobby Instance { get; private set; }
 
     public event EventHandler OnCreateLobbyStarted;

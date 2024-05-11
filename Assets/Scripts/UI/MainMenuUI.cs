@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour {
+
     [SerializeField] private Button playSingleplayerButton;
     [SerializeField] private Button playMultiplayerButton;
     [SerializeField] private Button quitButton;

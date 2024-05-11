@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class TeamColorSelectSingleUI : MonoBehaviour {
+
     [SerializeField] private int colorId;
     [SerializeField] private GameObject selectedGameObject;
 
@@ -13,6 +14,7 @@ public class TeamColorSelectSingleUI : MonoBehaviour {
 
     private void Start() {
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
+        
         UpdateIsSelected();
     }
 
@@ -21,10 +23,11 @@ public class TeamColorSelectSingleUI : MonoBehaviour {
     }
 
     private void UpdateIsSelected() {
-        if (GameMultiplayer.Instance.GetPlayerData().colorId == colorId)
+        if (GameMultiplayer.Instance.GetPlayerData().colorId == colorId) {
             selectedGameObject.SetActive(true);
-        else
+        } else {
             selectedGameObject.SetActive(false);
+        }
     }
 
     private void OnDestroy() {

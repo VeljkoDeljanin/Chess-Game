@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class TeamSelectUI : MonoBehaviour {
     [SerializeField] private Button mainMenuButton;
-    [SerializeField] private Button readyButton;
+    [SerializeField] private GameObject startGameButton;
     [SerializeField] private TextMeshProUGUI lobbyNameText;
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
 
@@ -16,8 +16,9 @@ public class TeamSelectUI : MonoBehaviour {
             NetworkManager.Singleton.Shutdown();
             Loader.Load(Loader.Scene.MainMenuScene);
         });
-        readyButton.onClick.AddListener(() => {
-            TeamSelectReady.Instance.SetPlayerReady();
+        startGameButton.GetComponent<Button>().onClick.AddListener(() => {
+            GameLobby.Instance.DeleteLobby();
+            Loader.LoadNetwork(Loader.Scene.GameScene);
         });
     }
 
@@ -29,13 +30,20 @@ public class TeamSelectUI : MonoBehaviour {
 
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
 
-        readyButton.interactable = false;
+        startGameButton.SetActive(NetworkManager.Singleton.IsServer);
+        startGameButton.GetComponent<Button>().interactable = false;
     }
 
     private void GameMultiplayer_OnPlayerDataNetworkListChanged(object sender, System.EventArgs e) {
-        if (GameMultiplayer.Instance.playerDataNetworkList.Count == 2)
-            readyButton.interactable = true;
-        else
-            readyButton.interactable = false;
+        if (GameMultiplayer.Instance.playerDataNetworkList.Count == 2) {
+            startGameButton.GetComponent<Button>().interactable = true;
+        } else {
+            startGameButton.GetComponent<Button>().interactable = false;
+        }
+    }
+
+    private void OnDestroy() {
+        GameMultiplayer.Instance.OnPlayerDataNetworkListChanged -= GameMultiplayer_OnPlayerDataNetworkListChanged;
+
     }
 }

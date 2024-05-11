@@ -13,36 +13,32 @@ public class PromotionUI : MonoBehaviour {
     }
 
     private void Start() {
-        TeamPromotion.Instance.OnTeamPromotion += TeamPromotion_OnTeamPromotion;
+        GameManager.Instance.OnStateChanged += GameManager_OnStateChanged;
 
         Hide();
+    }
+
+    private void GameManager_OnStateChanged(object sender, System.EventArgs e) {
+        if (GameManager.Instance.IsPromotionActive() && (GameManager.Instance.GetPromotionColorId() == GameMultiplayer.Instance.GetPlayerData().colorId || !GameMultiplayer.playMultiplayer)) {
+            Show(GameManager.Instance.GetPromotionColorId());
+        } else {
+            Hide();
+        }
     }
 
     private void AddButtonListeners(Button[] buttons) {
         buttons[0].onClick.AddListener(() => {
             TeamPromotion.Instance.ProcessPromotion(PieceType.Queen);
-            TeamPromotion.Instance.SetPromotionUIActive(false);
-            Hide();
         });
         buttons[1].onClick.AddListener(() => {
             TeamPromotion.Instance.ProcessPromotion(PieceType.Rook);
-            TeamPromotion.Instance.SetPromotionUIActive(false);
-            Hide();
         });
         buttons[2].onClick.AddListener(() => {
             TeamPromotion.Instance.ProcessPromotion(PieceType.Knight);
-            TeamPromotion.Instance.SetPromotionUIActive(false);
-            Hide();
         });
         buttons[3].onClick.AddListener(() => {
             TeamPromotion.Instance.ProcessPromotion(PieceType.Bishop);
-            TeamPromotion.Instance.SetPromotionUIActive(false);
-            Hide();
         });
-    }
-
-    private void TeamPromotion_OnTeamPromotion(object sender, TeamPromotion.OnTeamPromotionEventArgs e) {
-        Show(e.colorId);
     }
 
     private void Show(int colorId) {

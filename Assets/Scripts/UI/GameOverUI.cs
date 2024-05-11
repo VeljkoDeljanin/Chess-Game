@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameOverUI : MonoBehaviour {
+
     [SerializeField] private Button rematchButton;
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private TextMeshProUGUI messageText;
@@ -22,13 +23,13 @@ public class GameOverUI : MonoBehaviour {
     private void Start() {
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         GameOverRematch.Instance.OnRematchChanged += GameRematch_OnRematchChanged;
-        GameManager.Instance.OnGameOver += GameManager_OnGameOver;
+        GameManager.Instance.OnStateChanged += GameManager_OnStateChanged;
 
         Hide();
     }
 
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId) {
-        if (GameManager.Instance.gameOverUIActive) {
+        if (GameManager.Instance.IsGameOverActive()) {
             rematchButton.interactable = false;
             messageText.text = "Opponent has left!";
             messageText.color = Color.red;
@@ -42,13 +43,15 @@ public class GameOverUI : MonoBehaviour {
         }
     }
 
-    private void GameManager_OnGameOver(object sender, GameManager.OnGameOverEventArgs e) {
-        Show(e.resultText);
+    private void GameManager_OnStateChanged(object sender, System.EventArgs e) {
+        if (GameManager.Instance.IsGameOverActive()) {
+            Show();
+            resultText.text = GameManager.Instance.GetResultText();
+        }
     }
 
-    private void Show(string resultText) {
+    private void Show() {
         gameObject.SetActive(true);
-        this.resultText.text = resultText;
     }
 
     private void Hide() {

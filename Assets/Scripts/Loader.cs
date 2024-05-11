@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
 public static class Loader {
+
     public enum Scene {
         MainMenuScene,
         GameScene,

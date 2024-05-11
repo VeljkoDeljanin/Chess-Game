@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class GameInput : NetworkBehaviour {
+
     public static GameInput Instance { get; private set; }
+
+    public event EventHandler OnKeyPressed;
 
     private Camera currentCamera;
     private Vector2Int currentHover;
@@ -13,17 +17,36 @@ public class GameInput : NetworkBehaviour {
     private Vector2Int hitPosition;
 
     private float distance;
+    private bool isOpponentDisconnected;
 
     private void Awake() {
         Instance = this;
+
+        isOpponentDisconnected = false;
+    }
+
+    private void Start() {
+        GameManager.Instance.OnOpponentDisconnect += GameManager_OnOpponentDisconnect;
     }
 
     private void Update() {
-        if (!TeamPromotion.Instance.isPromotionUIActive && !GameManager.Instance.gameOverUIActive && !Chessboard.opponentDisconnectUIActive) {
+        if (isOpponentDisconnected) {
+            return;
+        }
+
+        if (GameManager.Instance.IsWaitingToStartActive() && Input.anyKey) {
+            OnKeyPressed?.Invoke(this, EventArgs.Empty);
+        }
+
+        if (GameManager.Instance.IsGamePlayingActive()) {
             UpdateCamera();
             UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, GameManager.Instance.isWhiteTurn, TileManager.TILE_COUNT);
             UpdatePieceAnimation(ref PieceManager.Instance.currentPiece);
         }
+    }
+
+    private void GameManager_OnOpponentDisconnect(object sender, EventArgs e) {
+        isOpponentDisconnected = true;
     }
 
     private void UpdateCamera() {
@@ -113,7 +136,7 @@ public class GameInput : NetworkBehaviour {
     }
 
     private bool IsMyTurn(Piece[,] pieces, bool isWhiteTurn) {
-        if (GameMultiplayer.playMultiplayer && GameMultiplayer.Instance.playerDataNetworkList.Count == 2) {
+        if (GameMultiplayer.playMultiplayer) {
             return (pieces[hitPosition.x, hitPosition.y].team == TeamColor.White && isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 0) ||
                    (pieces[hitPosition.x, hitPosition.y].team == TeamColor.Black && !isWhiteTurn && GameMultiplayer.Instance.GetPlayerData().colorId == 1);
         } else {

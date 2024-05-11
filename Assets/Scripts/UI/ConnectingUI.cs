@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 public class ConnectingUI : MonoBehaviour {
+
     private void Start() {
         GameMultiplayer.Instance.OnTryingToJoinGame += GameMultiplayer_OnTryingToJoinGame;
         GameMultiplayer.Instance.OnFailedToJoinGame += GameMultiplayer_OnFailedToJoinGame;

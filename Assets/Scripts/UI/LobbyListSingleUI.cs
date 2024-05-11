@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class LobbyListSingleUI : MonoBehaviour {
+
     [SerializeField] private TextMeshProUGUI lobbyNameText;
 
     private Lobby lobby;

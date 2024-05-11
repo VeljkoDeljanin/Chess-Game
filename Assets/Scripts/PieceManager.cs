@@ -10,6 +10,14 @@ public class PieceManager : NetworkBehaviour {
 
     public static PieceManager Instance { get; private set; }
 
+    public event EventHandler OnMoveSelfSound;
+    public event EventHandler OnMoveOpponentSound;
+    public event EventHandler OnGameEndSound;
+    public event EventHandler OnCaptureSound;
+    public event EventHandler OnCastleSound;
+    public event EventHandler OnMoveCheckSound;
+    public event EventHandler OnPromotionSound;
+
     [SerializeField] private GameObject[] prefabs;
     [SerializeField] private Material[] teamMaterials;
     [SerializeField] private Transform chessboardTransform;
@@ -88,12 +96,15 @@ public class PieceManager : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void MovePieceServerRpc(Vector2Int oldPosition, Vector2Int newPosition) {
-        MovePieceClientRpc(oldPosition, newPosition);
+    private void MovePieceServerRpc(Vector2Int oldPosition, Vector2Int newPosition, ServerRpcParams serverRpcParams = default) {
+        MovePieceClientRpc(oldPosition, newPosition, serverRpcParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
-    private void MovePieceClientRpc(Vector2Int oldPosition, Vector2Int newPosition) {
+    private void MovePieceClientRpc(Vector2Int oldPosition, Vector2Int newPosition, ulong senderClientId) {
+        bool soundPlayed = false;
+        bool pieceEaten = false;
+        
         Piece piece = pieces[oldPosition.x, oldPosition.y];
         int x = newPosition.x, y = newPosition.y;
 
@@ -116,6 +127,8 @@ public class PieceManager : NetworkBehaviour {
                 target.SetPosition(TileManager.Instance.GetTileCenter(-2, 8) + deadBlacks.Count * DEATH_SPACING * Vector3.back);
                 deadBlacks.Add(target);
             }
+
+            pieceEaten = true;
         }
 
         // Castling
@@ -125,6 +138,9 @@ public class PieceManager : NetworkBehaviour {
             pieces[(piece.currentX > x) ? 3 : 5, piece.currentY] = rook;
             PositionSinglePiece((piece.currentX > x) ? 3 : 5, piece.currentY);
             pieces[(piece.currentX > x) ? 0 : 7, piece.currentY] = null;
+
+            soundPlayed = true;
+            OnCastleSound?.Invoke(this, EventArgs.Empty);
         }
 
         Chessboard.lastMove = new Tuple<Vector2Int, Vector2Int>(new(piece.currentX, piece.currentY), new(x, y));
@@ -135,10 +151,14 @@ public class PieceManager : NetworkBehaviour {
 
         PositionSinglePiece(x, y);
 
-        TeamPromotion.Instance.CheckForPromotion();
+        if (TeamPromotion.Instance.CheckForPromotion()) {
+            soundPlayed = true;
+            OnPromotionSound?.Invoke(this, EventArgs.Empty);
+        }
 
-        if (piece.type == PieceType.Rook || piece.type == PieceType.King)
+        if (piece.type == PieceType.Rook || piece.type == PieceType.King) {
             piece.moved = true;
+        }
 
         GameManager.Instance.isWhiteTurn = !GameManager.Instance.isWhiteTurn;
         Chessboard.enPassant = false;
@@ -147,8 +167,22 @@ public class PieceManager : NetworkBehaviour {
 
         TileManager.Instance.RemoveHighlights(ref Chessboard.validMoves);
 
-        GameManager.Instance.CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
+        int checkForCheckmateResult = GameManager.Instance.CheckForCheckmate(piece.team == TeamColor.White ? TeamColor.Black : TeamColor.White);
 
         currentPiece = null;
+
+        if (!soundPlayed) {
+            if (checkForCheckmateResult == 1) {
+                OnGameEndSound?.Invoke(this, EventArgs.Empty);
+            } else if (checkForCheckmateResult == 2) {
+                OnMoveCheckSound?.Invoke(this, EventArgs.Empty);
+            } else if (pieceEaten) {
+                OnCaptureSound?.Invoke(this, EventArgs.Empty);
+            } else if (senderClientId == NetworkManager.Singleton.LocalClientId) {
+                OnMoveSelfSound?.Invoke(this, EventArgs.Empty);
+            } else {
+                OnMoveOpponentSound?.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 }

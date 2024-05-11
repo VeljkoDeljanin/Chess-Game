@@ -2,14 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TileManager : MonoBehaviour {
-    [SerializeField] private Transform chessboardTransform;
-
-    public static TileManager Instance { get; private set; }
 
     public const int TILE_COUNT = 8;
     private const float TILE_SIZE = 0.3f;
 
-    private Material tileMaterial;
+    public static TileManager Instance { get; private set; }
+
+    [SerializeField] private Transform chessboardTransform;
+    [SerializeField] private Material tileMaterial;
+
     public float yOffset = 0.185f;
 
     public GameObject[,] tiles;
@@ -32,12 +33,10 @@ public class TileManager : MonoBehaviour {
     }
 
     private GameObject GenerateSingleTile(int x, int y, Transform transform) {
-        GameObject tileObject = new($"X: {x}, Y: {y}");
+        GameObject tileObject = new GameObject($"X: {x}, Y: {y}");
         tileObject.transform.parent = transform;
 
-        tileMaterial = Resources.Load("Materials/TransparentTiles", typeof(Material)) as Material;
-
-        Mesh mesh = new();
+        Mesh mesh = new Mesh();
         tileObject.AddComponent<MeshFilter>().mesh = mesh;
         tileObject.AddComponent<MeshRenderer>().material = tileMaterial;
 

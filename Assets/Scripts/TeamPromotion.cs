@@ -3,46 +3,30 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TeamPromotion : NetworkBehaviour {
+
     public static TeamPromotion Instance { get; private set; }
 
-    public event EventHandler<OnTeamPromotionEventArgs> OnTeamPromotion;
-    public class OnTeamPromotionEventArgs : EventArgs {
-        public int colorId;
-    }
-
-    public bool isPromotionUIActive;
+    public event EventHandler OnGameEndSound;
+    public event EventHandler OnMoveCheckSound;
 
     private void Awake() {
         Instance = this;
-
-        isPromotionUIActive = false;
     }
 
-    public void CheckForPromotion() {
+    public bool CheckForPromotion() {
         Tuple<Vector2Int, Vector2Int> lastMove = Chessboard.lastMove;
         if (PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn) {
             if (lastMove.Item2.y == 7 || lastMove.Item2.y == 0) {
+
                 int colorId = (int)PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].team - 1;
                 if (colorId == GameMultiplayer.Instance.GetPlayerData().colorId || !GameMultiplayer.playMultiplayer) {
-                    SetPromotionUIActive(true);
-                    OnTeamPromotion?.Invoke(this, new OnTeamPromotionEventArgs { colorId = colorId });
+                    GameManager.Instance.SetTeamPromotion(colorId);
+                    return true;
                 }
             }
         }
-    }
 
-    public void SetPromotionUIActive(bool isPromotionUIActive) {
-        SetPromotionUIActiveServerRpc(isPromotionUIActive);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void SetPromotionUIActiveServerRpc(bool isPromotionUIActive) {
-        SetPromotionUIActiveClientRpc(isPromotionUIActive);
-    }
-
-    [ClientRpc]
-    public void SetPromotionUIActiveClientRpc(bool isPromotionUIActive) {
-        this.isPromotionUIActive = isPromotionUIActive;
+        return false;
     }
 
     public void ProcessPromotion(PieceType promotionType) {
@@ -52,6 +36,8 @@ public class TeamPromotion : NetworkBehaviour {
     [ServerRpc(RequireOwnership = false)]
     private void ProcessPromotionServerRpc(PieceType promotionType) {
         ProcessPromotionClientRpc(promotionType);
+
+        GameManager.Instance.TeamPromotionOver();
     }
 
     [ClientRpc]
@@ -63,6 +49,11 @@ public class TeamPromotion : NetworkBehaviour {
 
         PieceManager.Instance.PositionSinglePiece(lastMove.Item2.x, lastMove.Item2.y, false);
 
-        GameManager.Instance.CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
+        int checkForCheckmateResult = GameManager.Instance.CheckForCheckmate((lastMove.Item2.y == 7) ? TeamColor.Black : TeamColor.White);
+        if (checkForCheckmateResult == 1) {
+            OnGameEndSound?.Invoke(this, EventArgs.Empty);
+        } else if (checkForCheckmateResult == 2) {
+            OnMoveCheckSound?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

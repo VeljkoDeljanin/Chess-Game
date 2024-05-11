@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class LobbyMessageUI : MonoBehaviour {
+
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private Button closeButton;
 

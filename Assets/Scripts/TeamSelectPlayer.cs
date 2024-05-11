@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class TeamSelectPlayer : MonoBehaviour {
     [SerializeField] private int playerIndex;
-    [SerializeField] private GameObject readyGameObject;
     [SerializeField] private PlayerVisual[] playerVisuals;
     [SerializeField] private Button kickButton;
     [SerializeField] private TextMeshPro playerNameText;
@@ -20,14 +19,9 @@ public class TeamSelectPlayer : MonoBehaviour {
 
     private void Start() {
         GameMultiplayer.Instance.OnPlayerDataNetworkListChanged += GameMultiplayer_OnPlayerDataNetworkListChanged;
-        TeamSelectReady.Instance.OnReadyChanged += TeamSelectReady_OnReadyChanged;
 
         kickButton.gameObject.SetActive(NetworkManager.Singleton.IsServer && playerIndex != 0);
 
-        UpdatePlayer();
-    }
-
-    private void TeamSelectReady_OnReadyChanged(object sender, System.EventArgs e) {
         UpdatePlayer();
     }
 
@@ -41,8 +35,6 @@ public class TeamSelectPlayer : MonoBehaviour {
 
             PlayerData playerData = GameMultiplayer.Instance.GetPlayerDataFromPlayerIndex(playerIndex);
             
-            readyGameObject.SetActive(TeamSelectReady.Instance.IsPlayerReady(playerData.clientId));
-
             playerNameText.text = playerData.playerName.ToString();
 
             foreach (var playerVisual in playerVisuals)

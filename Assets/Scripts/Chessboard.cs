@@ -9,11 +9,9 @@ public class Chessboard : MonoBehaviour {
     public static Tuple<Vector2Int, Vector2Int> lastMove = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
     public static Tuple<Vector2Int, Vector2Int> lastSimulation = new Tuple<Vector2Int, Vector2Int>(new Vector2Int(0, 0), new Vector2Int(0, 0));
     public static bool enPassant;
-    public static bool opponentDisconnectUIActive;
 
     private void Awake()  {
         enPassant = false;
-        opponentDisconnectUIActive = false;
     }
 
     // Prevent check
