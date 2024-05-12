@@ -5,6 +5,7 @@ Computer Science studies at the Faculty of Mathematics, University of Belgrade.
 
 ## Running
 - The project is intended for the Windows operating system.
+- Releases -> Version 0.1.0 -> Chess-Game.zip -> Extract files -> Chess Game.exe
 
 ## Images
 ![MainMenuImage](Images/MainMenu.png)
@@ -21,6 +22,7 @@ Computer Science studies at the Faculty of Mathematics, University of Belgrade.
 ## Assets
 - [Chess Set](https://assetstore.unity.com/packages/3d/props/low-poly-chess-set-board-and-timer-216547)
 - [Chess Pieces Images](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces)
+- [Table](https://assetstore.unity.com/packages/3d/props/furniture/patio-table-227263)
 - [Sounds](https://www.chess.com/forum/view/general/chessboard-sound-files?page=2#comment-89885805)
 
 ## Course Details
