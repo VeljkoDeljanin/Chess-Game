@@ -6,6 +6,14 @@ Computer Science studies at the Faculty of Mathematics, University of Belgrade.
 ## Running
 - The project is intended for the Windows operating system.
 
+## Images
+![MainMenuImage](Images/MainMenu.png)
+![LobbyImage](Images/Lobby.png)
+![LobbyCreationImage](Images/LobbyCreation.png)
+![TeamSelectImage](Images/TeamSelect.png)
+![GamePlayingImage](Images/GamePlaying.png)
+![GameOverImage](Images/GameOver.png)
+
 ## Unity Services
 - [Lobby](https://unity.com/products/lobby)
 - [Relay](https://unity.com/products/relay)
