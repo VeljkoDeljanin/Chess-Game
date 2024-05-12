@@ -40,7 +40,7 @@ public class GameInput : NetworkBehaviour {
 
         if (GameManager.Instance.IsGamePlayingActive()) {
             UpdateCamera();
-            UpdateInput(ref Chessboard.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, GameManager.Instance.isWhiteTurn, TileManager.TILE_COUNT);
+            UpdateInput(ref PieceManager.Instance.validMoves, ref PieceManager.Instance.pieces, ref PieceManager.Instance.currentPiece, GameManager.Instance.isWhiteTurn, TileManager.TILE_COUNT);
             UpdatePieceAnimation(ref PieceManager.Instance.currentPiece);
         }
     }
@@ -94,10 +94,10 @@ public class GameInput : NetworkBehaviour {
                         currentPiece = pieces[hitPosition.x, hitPosition.y];
 
                         // Get a list of valid moves
-                        validMoves = currentPiece.GetValidMoves(ref pieces, tileCount, Chessboard.lastMove);
+                        validMoves = currentPiece.GetValidMoves(ref pieces, tileCount, PieceManager.Instance.lastMove);
 
                         // Remove moves that put us in check
-                        Chessboard.PreventMove();
+                        PieceManager.Instance.PreventMove();
 
                         TileManager.Instance.HighlightMoves(ref validMoves);
                     }

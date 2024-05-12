@@ -14,7 +14,7 @@ public class TeamPromotion : NetworkBehaviour {
     }
 
     public bool CheckForPromotion() {
-        Tuple<Vector2Int, Vector2Int> lastMove = Chessboard.lastMove;
+        Tuple<Vector2Int, Vector2Int> lastMove = PieceManager.Instance.lastMove;
         if (PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].type == PieceType.Pawn) {
             if (lastMove.Item2.y == 7 || lastMove.Item2.y == 0) {
 
@@ -42,7 +42,7 @@ public class TeamPromotion : NetworkBehaviour {
 
     [ClientRpc]
     private void ProcessPromotionClientRpc(PieceType promotionType) {
-        Tuple<Vector2Int, Vector2Int> lastMove = Chessboard.lastMove;
+        Tuple<Vector2Int, Vector2Int> lastMove = PieceManager.Instance.lastMove;
         Destroy(PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y].gameObject);
         Piece newPiece = PieceManager.Instance.SpawnSinglePiece(promotionType, (lastMove.Item2.y == 7) ? TeamColor.White : TeamColor.Black);
         PieceManager.Instance.pieces[lastMove.Item2.x, lastMove.Item2.y] = newPiece;

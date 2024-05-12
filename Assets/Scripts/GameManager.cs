@@ -216,7 +216,7 @@ public class GameManager : NetworkBehaviour {
         for (int i = 0; i < TileManager.TILE_COUNT; i++) {
             for (int j = 0; j < TileManager.TILE_COUNT; j++) {
                 if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team != ourKing.team) {
-                    List<Vector2Int> enemyMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, Chessboard.lastMove);
+                    List<Vector2Int> enemyMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, PieceManager.Instance.lastMove);
 
                     if (GameInput.Instance.ContainsMove(ref enemyMoves, new Vector2Int(ourKing.currentX, ourKing.currentY))) {
                         kingChecked = true;
@@ -232,15 +232,15 @@ public class GameManager : NetworkBehaviour {
             for (int j = 0; j < TileManager.TILE_COUNT; j++) {
                 if (PieceManager.Instance.pieces[i, j] != null && PieceManager.Instance.pieces[i, j].team == ourKing.team) {
                     PieceManager.Instance.currentPiece = PieceManager.Instance.pieces[i, j];
-                    Chessboard.validMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, Chessboard.lastMove);
-                    Chessboard.PreventMove();
-                    if (Chessboard.validMoves.Count > 0)
+                    PieceManager.Instance.validMoves = PieceManager.Instance.pieces[i, j].GetValidMoves(ref PieceManager.Instance.pieces, TileManager.TILE_COUNT, PieceManager.Instance.lastMove);
+                    PieceManager.Instance.PreventMove();
+                    if (PieceManager.Instance.validMoves.Count > 0)
                         movesLeft++;
                 }
             }
         }
 
-        Chessboard.validMoves.Clear();
+        PieceManager.Instance.validMoves.Clear();
         PieceManager.Instance.currentPiece = null;
 
         if (movesLeft == 0) {
