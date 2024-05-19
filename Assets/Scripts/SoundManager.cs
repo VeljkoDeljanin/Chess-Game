@@ -3,7 +3,11 @@ using UnityEngine;
 
 public class SoundManager : NetworkBehaviour {
 
+    public static readonly string PLAYER_PREFS_SOUND_EFFECT_VOLUME = "SoundEffectsVolume";
+
     public static SoundManager Instance { get; private set; }
+
+    private static float volume = 1f;
 
     [SerializeField] private AudioClip gameStart;
     [SerializeField] private AudioClip gameEnd;
@@ -82,7 +86,22 @@ public class SoundManager : NetworkBehaviour {
         PlaySound(countdown, Camera.main.transform.position);
     }
 
-    private void PlaySound(AudioClip audioClip, Vector3 position, float volume = 1f) {
-        AudioSource.PlayClipAtPoint(audioClip, position, volume);
+    private void PlaySound(AudioClip audioClip, Vector3 position, float volumeMultiplier = 1f) {
+        AudioSource.PlayClipAtPoint(audioClip, position, volumeMultiplier * volume);
+    }
+
+    public static void InitVolume(float initVolume) {
+        volume = initVolume;
+    }
+
+    public static void ChangeVolume(float newVolume) {
+        volume = newVolume / 10f;
+
+        PlayerPrefs.SetFloat(PLAYER_PREFS_SOUND_EFFECT_VOLUME, volume);
+        PlayerPrefs.Save();
+    }
+
+    public static float GetVolume() {
+        return volume;
     }
 }
